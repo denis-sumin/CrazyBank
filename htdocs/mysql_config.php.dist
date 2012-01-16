@@ -1,0 +1,8 @@
+﻿<?php
+
+$mysql_server = "localhost";
+$mysql_db = "crazy";
+$mysql_user = "user";
+$mysql_password = "passwd";
+
+?>

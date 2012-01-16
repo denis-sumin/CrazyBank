@@ -1,0 +1,67 @@
+﻿<?php
+// ItIsCrazyBankModule
+
+$module = 'rates';
+
+if ( !defined("RequestModule") || RequestModule !== 'core' ) die;
+
+$modules[$module]['name'] = 'Информация о валютах';
+
+$modules[$module]['action'][] = 'show_rates';
+$modules[$module]['menu'][] = 'Курсы валют';
+$modules[$module]['title'][] = 'Курсы валют';
+
+
+
+$modules[$module]['groups'][] = 'guest'; // группы, которым разрешено пользоваться модулем
+$modules[$module]['groups'][] = 'company';
+
+echo "
+<script>
+	var i = 0;
+	var k = 2;
+	function NextRates() {
+		i=i%k;
+		window.document.getElementById('rates'+i).style.display = 'none';
+		window.document.getElementById('rates'+(i+1)%k).style.display = 'inline';
+		i++;
+	}
+</script>";
+
+$rates = getRates();
+
+echo '<div id="rates">
+<a href="javascript:NextRates()">Курсы валют</a>&nbsp;&nbsp;
+<span id="rates0">
+1 пиастр = '.number_format ($rates['piastre']/$rates['boubloon'], 3, ',', '').' бублона&nbsp;&nbsp;
+1 бублон =  '.number_format ($rates['boubloon']/$rates['piastre'], 3, ',', '').' пиастра
+</span>
+<span id="rates1" style="display: none;">
+1 пиастр = '.number_format ($rates['piastre'], 3, ',', '').' лита&nbsp;&nbsp;
+1 бублон =  '.number_format ($rates['boubloon'], 3, ',', '').' лита
+</span>
+</div>';
+
+function show_rates( $action ) {
+	global $modules, $account, $accountlist;	
+	$module = $modules['rates'];
+
+	switch ($action) {
+		case 'show_rates':
+			$rates = getRates();
+			
+			echo '<div>
+			<p>
+			1 пиастр = '.number_format ($rates['piastre']/$rates['boubloon'], 3, ',', '').' бублона<br />
+			1 бублон =  '.number_format ($rates['boubloon']/$rates['piastre'], 3, ',', '').' пиастра
+			</p>
+			<p>
+			1 пиастр = '.number_format ($rates['piastre'], 3, ',', '').' лита<br />
+			1 бублон =  '.number_format ($rates['boubloon'], 3, ',', '').' лита
+			</p>
+			</div>';
+			break;
+	}
+
+}
+?>

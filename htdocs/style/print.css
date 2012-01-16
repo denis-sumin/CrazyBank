@@ -1,0 +1,61 @@
+body {
+	background: #fff;
+	margin-top: 0px;
+	margin:0; padding:0;
+	background: url('../images/print.png');
+}
+
+#menu, #header, #auth, #rates, #indexlink, h1, #states {
+	display: none;
+}
+
+#main {
+	width: 98%;
+	margin: 0;
+	padding: 0;
+	left: 1px;
+	top: 1px;
+}
+
+#pinstoprint {
+	margin:5px 0 5px 0;
+	
+}
+	#pinstoprint .helpnote, #pinstoprint .helpnote * {
+		font-size: 9pt;
+		line-height: 100%;
+	}
+	
+	#pinstoprint .pinfo * {
+		font-size: 11pt;
+		line-height: 100%;
+	}
+	
+	#pinstoprint .ainfo * {
+		font-size: 14pt;
+		line-height: 100%;
+	}
+	
+#chequetoprint {
+	margin:5px 0 5px 0;
+}
+
+	#chequetoprint .balance {
+		font-size: 24pt;
+		font-weight: bold;
+		text-align: center;
+		width: 150px;
+	}
+
+	#chequetoprint .pinfo {
+		padding-left: 60px;
+		
+	}
+
+	#chequetoprint .pinfo * {
+		font-size: 11pt;
+		line-height: 110%;
+		
+	}
+
+img { border: 0; }
