@@ -85,7 +85,7 @@ function show_states( $action ) {
 				foreach ($log[$key] as $row) {
 					$row_timestamp = strtotime($row['timestamp']);
 					if ( isset ($row_timestamp_prev) && ($row_timestamp-$row_timestamp_prev)>3600)
-						echo '[new Date('.date("Y, m-1, d, H, i, s", ($row_timestamp-60)).'), '.$col['leftwing'].', '.$col['rightwing'].']'.",\n";
+						echo '[new Date('.date("Y, m-1, d, H, i, s", ($row_timestamp-3600)).'), '.$col['leftwing'].', '.$col['rightwing'].']'.",\n";
 					$money[$key] += $row['money'];
 					foreach ($states as $key1=>$value1) $col[$key1]='undefined';
 					$col[$key]=$money[$key];
