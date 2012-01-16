@@ -13,7 +13,11 @@ $modules[$module]['title'][] = 'Новый пользователь';
 
 $modules[$module]['action'][] = 'admin_edit_user';
 $modules[$module]['menu'][] = 'Редактировать пользователя';
-$modules[$module]['title'][] = 'Изменить информацию';
+$modules[$module]['title'][] = 'Изменить информацию'; 
+
+$modules[$module]['action'][] = 'admin_delete_user';
+$modules[$module]['menu'][] = 'Удалить пользователя';
+$modules[$module]['title'][] = 'Удаление пользователя';
 
 //$modules[$module]['action'][] = 'admin_add_money'; // не готово
 //$modules[$module]['menu'][] = 'Зачислить на счёт';
@@ -234,7 +238,44 @@ function show_admin ($action) {
 				<input type="submit" name="getid" value="Редактировать">
 			</form>
 			</div>';
-			break;		
+			break;	
+
+// Удалить пользователя
+		case 'admin_delete_user':
+			$accountlist = TRUE;
+			
+			if ( empty ($_POST) ) echo '
+			<div>
+			Введите номер банковского счета:
+			<form method="post">
+				<input type="text" name="account_id" id="account_id" />
+				<input type="submit" name="'.$action.'" value="'.$dif[$action][0].'Удалить">
+			</form>
+			</div>';
+		
+			if ( isset ($_POST[$action]) ) {
+				echo '
+				<div>
+				<p>Вы уверены, что хотите '.$dif[$action][1].'удалить счет?</p><p>';
+				if ( print_account_info ( $_POST['account_id'] ) ) {
+				echo '</p>
+				<form method="post">
+					<input type="hidden" name="account_id" value="'.$_POST['account_id'].'">
+					<input type="submit" name="confirm" value="Подтвердить">
+				</form>
+				</div>';
+				}	
+			}
+	
+			if ( isset ($_POST['confirm']) ) {
+				if ( deleteUser ( $_POST['account_id']) ) {
+				echo 'Банковский счет удален';
+				}    
+        else{   
+				echo 'Произошла ошибка удаления счета';
+        } 
+			}
+			break;
 
 // Сброс ПИНа
 		case 'admin_reset_pin':
@@ -317,7 +358,8 @@ function show_admin ($action) {
 				<p><!--<input type="checkbox" name="reload_rates" />&nbsp; Обновить курсы валют<br />-->
 				<input type="checkbox" name="increase_balances" />&nbsp; Увеличить баланс активных счетов на 5 %<br />
 				<input type="checkbox" name="increase_state_balances" />&nbsp; Увеличить баланс государств<br />
-				<input type="checkbox" name="collect_taxes" />&nbsp; Собрать налоги</p>
+				<input type="checkbox" name="collect_taxes" />&nbsp; Собрать налоги<br />   
+				<input type="checkbox" name="distribute_state_balances" />&nbsp; Распределить бюджеты государств по гражданам</p>
 				<p><input type="submit" name="'.$action.'" value="Выполнить операции"></p>
 			</form>
 			';
@@ -334,6 +376,9 @@ function show_admin ($action) {
 				}
 				if (isset($_POST['collect_taxes'])) {
 					if (collect_taxes()) echo '<p>Собрали налоги для государств</p>';
+				}  
+				if (isset($_POST['distribute_state_balances'])) {
+					if (distribute_state_balances()) echo '<p>Распределили бюджеты государств по гражданам</p>';
 				}
 			}
 			break;

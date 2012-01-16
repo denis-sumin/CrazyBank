@@ -30,6 +30,7 @@ function show_manage_companies ($action) {
 					echo '
 					<p>Компания успешно добавлена</p><p>';
 					print_account_info ( $new_account );
+          //??show_manage_companies('admin_edit_usersincompany');
 					echo '</p>';
 				}	
 				else echo 'Ошибка добавления компании';
