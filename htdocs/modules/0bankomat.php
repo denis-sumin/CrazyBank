@@ -99,10 +99,7 @@ function show_bankomat( $action ) {
 					}
 				}
 				else {
-					if ( $_POST['session_id'] == session_id() ) {
-						if (transmit($_SESSION['account_id'],$_POST['account_id_to'],$_POST['cash'],$_POST['currency'],$_POST['comment'])) $transmit=TRUE;
-					}
-					else report_error('Зафиксирована попытка обмануть банк. Аяяяй.');
+					if (transmit($_SESSION['account_id'],$_POST['account_id_to'],$_POST['cash'],$_POST['currency'],$_POST['comment'])) $transmit=TRUE;
 					
 				}
 				echo '<p style="margin-bottom: 40px;"><i>Перевод прошел успешно!</i></p>';
@@ -131,7 +128,6 @@ function show_bankomat( $action ) {
 				<br /><input type="password" name="pin" />
 				<input type="hidden" value="'.$_POST['account_id'].'" name="account_id" />
 				';
-				else echo "\n".'<input type="hidden" value="'.session_id().'" name="session_id" />';
 				echo '
 				<input type="hidden" value="'.$_POST['account_id_to'].'" name="account_id_to" />
 				<input type="hidden" value="'.$_POST['cash'].'" name="cash" />

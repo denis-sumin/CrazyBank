@@ -58,7 +58,6 @@
 include ("./mysql_config.php");
 include ("./config.php");
 include ("./functions_controller.php");
-include ("./functions_view.php");
 
 if (!mysql_connect($mysql_server,$mysql_user,$mysql_password)) 
 	exit ('Произошла ошибка подключения к базе данных. Повторите попытку и сообщите, пожалуйста, о случившемся правительству Crazy Week.');

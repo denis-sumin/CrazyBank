@@ -674,6 +674,66 @@ function editUser ( $account_id, $name, $surname, $litgroup, $photo_url, $group,
 	return TRUE;
 }
 
+function deleteUser ($account_id) {
+	global $account;
+	
+		if ( $account_id == '' ) {
+			report_error ("Вы не ввели номер пользователя");
+			return FALSE;
+		}
+	
+	$id = account2id ($account_id);
+	
+	if(!mysql_query ("SELECT * FROM `users` WHERE `id` = '$id';"))
+  {  
+			report_error ("Пользователь с такими номером не существует");
+			return FALSE;
+  }
+	
+	$q = mysql_query ("SELECT * FROM `users` WHERE `id` = '$id';");
+	$oldInfo = mysql_fetch_array($q);   
+	$w = mysql_query ("SELECT * FROM `usersgroup` WHERE `id` = '$id';");
+  $oldGroups = mysql_fetch_array($w);
+	
+	mysql_query ("START TRANSACTION;");
+	
+	if ( !mysql_query ("DELETE FROM `Crazy`.`accounts` WHERE `accounts`.`id` = '$account_id' LIMIT 1;") ) {
+		report_error ("Произошла ошибка удаления аккаунта банка"); 
+		mysql_query ("ROLLBACK;");
+		return FALSE;
+	}  
+	if ( !mysql_query ("DELETE FROM `Crazy`.`users` WHERE `users`.`id` = '$id' LIMIT 1;") ) {
+		report_error ("Произошла ошибка удаления пользователя"); 
+		mysql_query ("ROLLBACK;");
+		return FALSE;
+	}
+	  
+	if ( !mysql_query ("DELETE FROM `Crazy`.`usersgroup` WHERE `usersgroup`.`id` = '$id';") ) {
+		report_error ("Произошла ошибка удаления групп пользователя"); 
+		mysql_query ("ROLLBACK;");
+		return FALSE;
+	}
+	
+	$log = 'Удаление пользователя '.$id.'. Параметры аккаунта: name:'.$oldInfo['name'].' surname:'.$oldInfo['surname'].' litgroup:'.$oldInfo['litgroup'].', photo_url:'.$oldInfo['photo_url'].' group:';
+	if(!empty ($oldGroups))
+  {
+    foreach ($oldGroups as $bankgroup) {
+		  $log .= $bankgroup.',';
+	  }
+  }
+	
+	if ( !mysql_query ("
+	INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
+	VALUES ('$account[id]', '$id', '$log', '$_SERVER[REMOTE_ADDR]');") ) {
+		report_error ("Произошла ошибка записи в логи. Пользователь не был удаен");
+		return FALSE;
+	}
+	
+	mysql_query ("COMMIT;");
+	
+	return TRUE;
+}
+
 function updateUsersGroup ( $id, $group ) {
 	mysql_query ("START TRANSACTION;");
 	
@@ -912,38 +972,27 @@ function increase_state_balances() {
 	
 	for ($i=0; $i<mysql_num_rows($q); $i++) {
 		$f = mysql_fetch_array($q);
-		unset($diff); unset($f_salaries); unset($f_income); unset($f_outgoing);
 		
 		$cur_user = get_account_info(id2account($f['id']));
 		//$state_increase[$cur_user['state']] += 50;
 		
-		$salaries = mysql_query ("
-		SELECT sum(`money`)  FROM `logs_money` WHERE `id_from` >=1000 AND (`id_to` = '".$f['id']."') AND `timestamp`>DATE_SUB(NOW(), INTERVAL 1 DAY)
-		");
-		$f_salaries = mysql_fetch_array($salaries);
-		if ($f_salaries['sum(`money`)']!==null) $state_increase[$cur_user['state']] += 0.1*$f_salaries['sum(`money`)'];
-		
 		$income = mysql_query ("
 		SELECT sum(`money`)  FROM `logs_money` WHERE (`id_to` = '".$f['id']."') AND `timestamp`>DATE_SUB(NOW(), INTERVAL 1 DAY) AND `ip`!='bank'");
-		$f_income = mysql_fetch_array($income);	
+		$f_income = mysql_fetch_array($income);		
+		if ($f_income['sum(`money`)']==null) continue;
 		
 		$outgoing = mysql_query ("
 		SELECT sum(`money`)  FROM `logs_money` WHERE (`id_from` = '".$f['id']."') AND `timestamp`>DATE_SUB(NOW(), INTERVAL 1 DAY) AND `ip`!='bank'");
 		$f_outgoing = mysql_fetch_array($outgoing);		
-		if ( $f_income['sum(`money`)']!==null && $f_outgoing['sum(`money`)']!==null) {
-			if ( ( $diff = ($f_income['sum(`money`)'] - $f_outgoing['sum(`money`)']) ) > 0 ) {
-				$state_increase[$cur_user['state']] += 0.1*$diff;
-			}
+		if ($f_outgoing['sum(`money`)']==null) continue;
+		
+		if ( ( $diff = ($f_income['sum(`money`)'] - $f_outgoing['sum(`money`)']) ) > 0 ) {
+			$state_increase[$cur_user['state']] += 0.1*$diff;
 		}
-		//echo $f['id'].' '.$cur_user['state'].' '.($f_salaries['sum(`money`)']+$diff).'<br>';
 	}
 	
-	foreach ( $state_accounts as $key=>$value ) {
-		if ( $state_increase[$key] > 0 )
-			transmit (0, $value, $state_increase[$key], '', 'Премия государства в конце игрового дня');
-		//echo $value.' '.$state_increase[$key].'<br>';
-	}
-		
+	foreach ( $state_accounts as $key=>$value )
+		transmit (0, $value, $state_increase[$key], '', 'Премия государства в конце игрового дня');
 	
 	mysql_query ("COMMIT;");
 	return TRUE;
@@ -988,6 +1037,49 @@ function collect_taxes() {
 	foreach ( $accountlist as $key=>$id ) {
 		$account_id_from = id2account($id);
 		if (!transmit ($account_id_from, $account_id_to, $tax, $currency[$key], 'Налог государства')) {
+			mysql_query ("ROLLBACK;");
+			return FALSE;
+		}
+	}
+	
+	mysql_query ("COMMIT;");
+	return TRUE;
+}  
+
+function distribute_state_balances() {	
+	$state_accounts = getStatesAccounts();	
+
+	mysql_query ("START TRANSACTION;");
+	
+	// распределение для rightwing
+	$infium = 500; //Нижняя граница, с которой начинают начисляться деньги
+  $active_accounts_count = 0;//Количество аккаунтов, на которые нужно перечислять деньги
+  $account_has_governement_group = FALSE; //Определяет, являеться ли данный аккаунт членом правительства
+	$rightwing_id = $state_accounts['rightwing'];
+	foreach ( formAccountArray ('user') as $account )
+  {
+    $account_has_governement_group = FALSE;         
+	  $q = mysql_query("SELECT * FROM  `usersgroup` WHERE  `id` = '".$account['id']."' AND `bankgroup` = 'government'");
+    if (mysql_num_rows($q)!==0) $account_has_governement_group = TRUE; 
+		if ( $account['state'] == 'rightwing' || $account_has_governement_group == TRUE) {
+			$q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '".$account['id']."' AND `balance` < $infium");
+			if (mysql_num_rows($q)!==0)continue;
+      
+      $active_accounts_count++; 
+			$accountlist[]=$account['id'];
+			$currency[]=$account['currency'];
+		} 
+  } 
+    
+    $q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '".$rightwing_id."';");  
+    $f = mysql_fetch_array($q);
+    $rightwing_balance = $f['balance'];
+    
+    $summ_to_distribute = $rightwing_balance / $active_accounts_count; 
+    
+	foreach ( $accountlist as $key=>$id ) {
+		$account_id_to = id2account($id);
+		if (!transmit ($rightwing_id, $account_id_to, (int)$summ_to_distribute, $currency[$key], 'Распределение бюджета государства')) {
 			mysql_query ("ROLLBACK;");
 			return FALSE;
 		}
