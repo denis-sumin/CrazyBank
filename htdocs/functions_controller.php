@@ -674,6 +674,7 @@ function editUser ( $account_id, $name, $surname, $litgroup, $photo_url, $group,
 	return TRUE;
 }
 
+
 function deleteUser ($account_id) {
 	global $account;
 	
@@ -693,33 +694,33 @@ function deleteUser ($account_id) {
 	$q = mysql_query ("SELECT * FROM `users` WHERE `id` = '$id';");
 	$oldInfo = mysql_fetch_array($q);   
 	$w = mysql_query ("SELECT * FROM `usersgroup` WHERE `id` = '$id';");
-  $oldGroups = mysql_fetch_array($w);
+    
+    
 	
 	mysql_query ("START TRANSACTION;");
 	
-	if ( !mysql_query ("DELETE FROM `Crazy`.`accounts` WHERE `accounts`.`id` = '$account_id' LIMIT 1;") ) {
+	if ( !mysql_query ("DELETE FROM `accounts` WHERE `accounts`.`id` = '$account_id' LIMIT 1;") ) {
 		report_error ("Произошла ошибка удаления аккаунта банка"); 
 		mysql_query ("ROLLBACK;");
 		return FALSE;
 	}  
-	if ( !mysql_query ("DELETE FROM `Crazy`.`users` WHERE `users`.`id` = '$id' LIMIT 1;") ) {
+	if ( !mysql_query ("DELETE FROM `users` WHERE `users`.`id` = '$id' LIMIT 1;") ) {
 		report_error ("Произошла ошибка удаления пользователя"); 
 		mysql_query ("ROLLBACK;");
 		return FALSE;
 	}
 	  
-	if ( !mysql_query ("DELETE FROM `Crazy`.`usersgroup` WHERE `usersgroup`.`id` = '$id';") ) {
+	if ( !mysql_query ("DELETE FROM `usersgroup` WHERE `usersgroup`.`id` = '$id';") ) {
 		report_error ("Произошла ошибка удаления групп пользователя"); 
 		mysql_query ("ROLLBACK;");
 		return FALSE;
 	}
 	
 	$log = 'Удаление пользователя '.$id.'. Параметры аккаунта: name:'.$oldInfo['name'].' surname:'.$oldInfo['surname'].' litgroup:'.$oldInfo['litgroup'].', photo_url:'.$oldInfo['photo_url'].' group:';
-	if(!empty ($oldGroups))
-  {
-    foreach ($oldGroups as $bankgroup) {
-		  $log .= $bankgroup.',';
-	  }
+	
+  for ($i=0; $i<mysql_num_rows($w); $i++) {
+	  $oldGroups = mysql_fetch_array($w); 
+	  $log .= $oldGroups["bankgroup"].',';
   }
 	
 	if ( !mysql_query ("
@@ -733,6 +734,7 @@ function deleteUser ($account_id) {
 	
 	return TRUE;
 }
+
 
 function updateUsersGroup ( $id, $group ) {
 	mysql_query ("START TRANSACTION;");
