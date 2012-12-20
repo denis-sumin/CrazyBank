@@ -11,7 +11,7 @@ $modules[$module]['action'][] = 'votes_view';
 $modules[$module]['menu'][] = 'Доступные голосования';
 $modules[$module]['title'][] = 'Голосования';
 
-$modules[$module]['groups'][] = 'user';
+$modules[$module]['groups'][] = 'admin';
 
 function show_votes ($action) {
 	global $modules, $account, $accountlist, $group;	
