@@ -540,13 +540,15 @@ function pay_salary ($account_id, $n, $pin) {
 
 // returns 1 or 2 just for mysql
 function hashState ( $name, $surname ) {
+	$states = array_keys(getStatesList());
 	$str = $name.$surname;
 	$num = 0;
 	for ( $i=0; $i<strlen($str); $i++ ) {
 		$code = ord($str[$i]);
 		if ( $code != 208 ) $num+=$code;
 	}
-	return $num%91%43%17%2+1;
+	$state_id = $num%91%43%17%2+1;
+	return $states[$state_id % count($states)];
 }
 
 function addUser ( $name, $surname, $litgroup, $photo_url, $pin, $balance, $group ) {
