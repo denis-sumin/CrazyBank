@@ -718,7 +718,7 @@ function deleteUser ($account_id) {
 		return FALSE;
 	}
   
-  if(accounttype($account_id == 'company') {
+  if(accounttype($account_id == 'company')) {
     if ( !mysql_query ("DELETE FROM `companies` WHERE `companies`.`id` = '$id';") ) {
 		  report_error ("Произошла ошибка удаления записи о предприятии"); 
 		  mysql_query ("ROLLBACK;");
@@ -726,7 +726,7 @@ function deleteUser ($account_id) {
 	  }
   }
 	               
-  if(accounttype($account_id == 'user') {
+  if(accounttype($account_id == 'user')) {
 	 $log = 'Удаление пользователя '.$id.'. Параметры аккаунта: name:'.$oldInfo['name'].' surname:'.$oldInfo['surname'].' litgroup:'.$oldInfo['litgroup'].', photo_url:'.$oldInfo['photo_url'].' group:';
 	
     for ($i=0; $i<mysql_num_rows($w); $i++) {
