@@ -718,10 +718,10 @@ function deleteUser ($account_id) {
   
   if(accounttype($account_id == 'company') {
     if ( !mysql_query ("DELETE FROM `companies` WHERE `companies`.`id` = '$id';") ) {
-		report_error ("Произошла ошибка удаления записи о предприятии"); 
-		mysql_query ("ROLLBACK;");
-		return FALSE;
-	}
+		  report_error ("Произошла ошибка удаления записи о предприятии"); 
+		  mysql_query ("ROLLBACK;");
+		  return FALSE;
+	  }
   }
 	               
   if(accounttype($account_id == 'user') {
