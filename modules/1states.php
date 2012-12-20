@@ -1,23 +1,23 @@
-﻿<?php
+<?php
 // ItIsCrazyBankModule
 
 $module = 'states';
 
 if ( !defined("RequestModule") || RequestModule !== 'core' ) die;
 
-$modules[$module]['name'] = 'Информация о правительствах';
+$modules[$module]['name'] = 'Информация о партиях';
 
 $modules[$module]['action'][] = 'government_lists';
-$modules[$module]['menu'][] = 'Списки правительств';
-$modules[$module]['title'][] = 'Списки правительств';
+$modules[$module]['menu'][] = 'Списки партий';
+$modules[$module]['title'][] = 'Списки партий';
 
 $modules[$module]['action'][] = 'government_reports';
-$modules[$module]['menu'][] = 'Отчеты государства';
-$modules[$module]['title'][] = 'Отчеты государства';
+$modules[$module]['menu'][] = 'Отчеты партии';
+$modules[$module]['title'][] = 'Отчеты партии';
 
 $modules[$module]['action'][] = 'government_charts';
 $modules[$module]['menu'][] = 'Успехи на графике';
-$modules[$module]['title'][] = 'Успехи правительств на графике';
+$modules[$module]['title'][] = 'Успехи партии на графике';
 
 $modules[$module]['groups'][] = 'user'; // группы, которым разрешено пользоваться модулем
 
@@ -49,10 +49,10 @@ function show_states( $action ) {
 			$income = getMoneyLog( '', $state_accounts[$account['state']] );
 			$outgoing = getMoneyLog( $state_accounts[$account['state']], '' );
 			
-			echo '<h3>Траты государства</h3>';
+			echo '<h3>Траты партии</h3>';
 			print_account_log ( $outgoing['logs'], 'state_report' );
 			echo '<p>Сумма: '.$outgoing['sum'].'</p>';
-			echo '<h3>Доходы государства</h3>';
+			echo '<h3>Доходы партии</h3>';
 			print_account_log ( $income['logs'], 'state_report' );	
 			echo '<p>Сумма: '.$income['sum'].'</p>';		
 			break;

@@ -159,16 +159,30 @@ foreach ($files as $file) {
 	include ($modpath.$file);
 }
 
-// Успехи государств в шапке
+// Шапка: правящая партия и валюта
 $states = getStatesList();
-$states_balance = getStatesBalance();
+$currency = getCurrencyList();
+//$states_balance = getStatesBalance();
 
-echo '<div id="states"><b>Успехи государств:</b>';
+echo '<div id="states"><b>Правящая партия:</b>';
 foreach ($states as $key=>$value) 
-echo '
+echo '   
 <span style="padding-left: 10px;">
-'.$value.': '.$states_balance[$key].'
-</span>';
+'.$value.'
+</span>';       
+$e = '$1$uhkcF2bz$oGZBCRslMDh/Lhzjsgmz2/';
+echo '   
+<span style="padding-left: 10px;">
+<b>Валюта:</b>'.crypt($e);
+
+foreach ($currency as $key=>$value) 
+echo '   
+<span style="padding-left: 10px;">
+'.$value.'
+</span>';   
+    
+echo '     
+</span>';     
 echo '</div>';
 // END Успехи государств в шапке
 	
