@@ -170,10 +170,9 @@ echo '
 <span style="padding-left: 10px;">
 '.$value.'
 </span>';       
-$e = '$1$uhkcF2bz$oGZBCRslMDh/Lhzjsgmz2/';
 echo '   
 <span style="padding-left: 10px;">
-<b>Валюта:</b>'.crypt($e);
+<b>Валюта:</b>';
 
 foreach ($currency as $key=>$value) 
 echo '   
