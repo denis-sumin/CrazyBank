@@ -1,5 +1,5 @@
 <?php
-  define ("start_balance", '300');
+  define ("start_balance", '400');
 	
   $group = array 
   (
