@@ -691,9 +691,14 @@ function deleteUser ($account_id) {
 			return FALSE;
   }
 	
-	$q = mysql_query ("SELECT * FROM `users` WHERE `id` = '$id';");
-	$oldInfo = mysql_fetch_array($q);   
-	$w = mysql_query ("SELECT * FROM `usersgroup` WHERE `id` = '$id';");
+  if(accounttype($account_id == 'user') {
+	 $q = mysql_query ("SELECT * FROM `users` WHERE `id` = '$id';");
+	 $oldInfo = mysql_fetch_array($q);   
+	 $w 
+  else {            
+	 $q = mysql_query ("SELECT * FROM `companies` WHERE `id` = '$id';");
+	 $oldInfo = mysql_fetch_array($q);   
+  }
     
     
 	
@@ -716,15 +721,15 @@ function deleteUser ($account_id) {
 		return FALSE;
 	}
   
-  if(accounttype($account_id == 'company') {
-    if ( !mysql_query ("DELETE FROM `companies` WHERE `companies`.`id` = '$id';") ) {
+  if(accounttype($account_id == 'company')) {
+    if ( !mysql_query ("DELETE FROM `companies` WHERE `id` = '$id';") ) {
 		  report_error ("Произошла ошибка удаления записи о предприятии"); 
 		  mysql_query ("ROLLBACK;");
 		  return FALSE;
 	  }
   }
 	               
-  if(accounttype($account_id == 'user') {
+  if(accounttype($account_id == 'user')) {
 	 $log = 'Удаление пользователя '.$id.'. Параметры аккаунта: name:'.$oldInfo['name'].' surname:'.$oldInfo['surname'].' litgroup:'.$oldInfo['litgroup'].', photo_url:'.$oldInfo['photo_url'].' group:';
 	
     for ($i=0; $i<mysql_num_rows($w); $i++) {
