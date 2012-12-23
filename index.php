@@ -164,7 +164,7 @@ $states = getStatesList();
 $currency = getCurrencyList();
 //$states_balance = getStatesBalance();
 
-echo '<div id="states"><b>Правящая партия:</b>';
+echo '<div id="states"><b>Состав парламента:</b>';
 foreach ($states as $key=>$value) 
 echo '   
 <span style="padding-left: 10px;">

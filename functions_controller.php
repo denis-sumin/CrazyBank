@@ -81,10 +81,30 @@ function check_password ($account_id, $password) {
 	
 			if (crypt ( $password, $f['hash'] ) == $f['hash'] ) $success = TRUE;
 			else $success = FALSE;	
-			break;
+			break;      
 		case 'company':
 			$q = mysql_query("SELECT * FROM `company_participators` WHERE oid='$id'");
 			if( mysql_num_rows ($q) == 0 ) report_error( "Счет компании не найден" );
+			
+			for ($i=0; $i < mysql_num_rows ($q); $i++) {
+				$f = mysql_fetch_array($q);
+				$user[] = $f['uid'];
+			}
+			
+			foreach ($user as $key=>$id) {
+				$q = mysql_query("SELECT * FROM `users` WHERE id='$id'");
+				if( mysql_num_rows ($q) == 0 ) report_error( "Счет не найден" );
+
+				$fu = mysql_fetch_array($q);
+	
+				if (crypt ( $password, $fu['hash'] ) == $fu['hash'] ) { $success = $fu['id'];  break; }
+				else $success = FALSE;
+			}			
+			break;
+       
+		case 'state': 
+			$q = mysql_query("SELECT * FROM `company_participators` WHERE oid='$id'");
+			if( mysql_num_rows ($q) == 0 ) report_error( "Счет партии не найден" );
 			
 			for ($i=0; $i < mysql_num_rows ($q); $i++) {
 				$f = mysql_fetch_array($q);
@@ -271,7 +291,7 @@ function get_account_info ($account_id) {
 				$account['organization'][] = $f['oid'];
 			}
 			break;
-			
+			   
 		case 'company':
 			$q = mysql_query("SELECT * FROM `accounts` INNER JOIN `companies` ON `accounts`.`id` = `companies`.`id` WHERE `companies`.`id`='$id'");
 			if ( mysql_num_rows($q) == 0 ) { report_error("Счет не найден"); return FALSE; }
@@ -294,8 +314,31 @@ function get_account_info ($account_id) {
 			
 			$account['group'][] = 'company';
 			
-			break;
-	}
+			break;     
+		case 'state': 
+			$q = mysql_query("SELECT * FROM `accounts` INNER JOIN `companies` ON `accounts`.`id` = `companies`.`id` WHERE `companies`.`id`='$id'");
+			if ( mysql_num_rows($q) == 0 ) { report_error("Счет не найден"); return FALSE; }
+			
+			$f = mysql_fetch_array($q);
+			$account['id'] = $f['id'];
+			$account['account_id'] = $account_id;
+			$account['name'] = $f['oname'];
+			
+			$account['balance'] = $f['balance'];
+			$account['blocked'] = $f['blocked'];
+			$account['currency'] = $f['currency'];
+			
+			$q = mysql_query("SELECT * FROM `company_participators` WHERE oid='$id'");
+			for ($i=0; $i < mysql_num_rows ($q); $i++) {
+				$f = mysql_fetch_array($q);
+				$account['users'][$i] = $f['uid'];
+				$account['user_percent'][$i] = $f['percentage'];
+			}
+			
+			$account['group'][] = 'company';
+			
+			break;      
+    }
 	
 	return $account;
 }
@@ -332,8 +375,16 @@ function accounttype ($account_id) {
 		case 3:
 			$type = 'user';
 			break;
-		case 4:
-			$type = 'company';
+		case 4:   
+      $q = mysql_query("SELECT * FROM `states` WHERE `account_id`='$account_id'");  
+      if(mysql_num_rows($q) > 0)
+      {                  
+			 $type = 'state';
+      }  
+      else
+      {                            
+			 $type = 'company';
+      }
 			break;
 	}
 	return $type;
@@ -364,7 +415,7 @@ function formAccountArray ( $type, $sortField='id', $sortDir='ASC' ) {
 				$array[$i]['blocked'] = $f['blocked'];
 				$array[$i]['balance'] = balance_format ($f['balance']*$rates[$f['currency']]);
 			}
-			break;
+			break;    
 		case 'company':
 			if ( $sortField == 'balance' ) $sortTable = 'accounts';
 			else $sortTable = 'companies';
@@ -377,8 +428,22 @@ function formAccountArray ( $type, $sortField='id', $sortDir='ASC' ) {
 				$array[$i]['oname'] = $f['oname'];
 				$array[$i]['balance'] = balance_format ($f['balance']*$rates[$f['currency']]);			
 			}
-			break;
-	}
+			break;  
+		case 'state':
+			if ( $sortField == 'balance' ) $sortTable = 'accounts';
+			else $sortTable = 'companies';
+			
+			$q = mysql_query("SELECT * FROM `accounts` INNER JOIN `companies` ON `accounts`.`id` = `companies`.`id` ORDER BY `$sortTable`.`$sortField` $sortDir, `companies`.`oname` ASC;");
+			
+			for ($i=0; $i < mysql_num_rows ($q); $i++) {
+				$f = mysql_fetch_array($q);
+				$array[$i]['id'] = id2account ( $f['id'] );
+				$array[$i]['oname'] = $f['oname'];
+				$array[$i]['balance'] = balance_format ($f['balance']*$rates[$f['currency']]);			
+			}
+			break;  
+    }
+	
 	return $array;
 }
 
@@ -690,14 +755,23 @@ function deleteUser ($account_id) {
 			report_error ("Пользователь с такими номером не существует");
 			return FALSE;
   }
-	
-  if(accounttype($account_id == 'user') {
-	 $q = mysql_query ("SELECT * FROM `users` WHERE `id` = '$id';");
-	 $oldInfo = mysql_fetch_array($q);   
-	 $w 
-  else {            
-	 $q = mysql_query ("SELECT * FROM `companies` WHERE `id` = '$id';");
-	 $oldInfo = mysql_fetch_array($q);   
+	    
+  switch(accounttype($account_id)){             
+    case 'user':
+      if(accounttype($account_id == 'user')) {
+	     $q = mysql_query ("SELECT * FROM `users` WHERE `id` = '$id';");
+	     $oldInfo = mysql_fetch_array($q);    
+       $w = mysql_query ("SELECT * FROM `usersgroup` WHERE `id` = '$id';"); 
+      }
+      break;
+    case 'company':            
+	    $q = mysql_query ("SELECT * FROM `companies` WHERE `id` = '$id';");
+	    $oldInfo = mysql_fetch_array($q);
+      break;     
+    case 'state':             
+	    $q = mysql_query ("SELECT * FROM `states` WHERE `account_id` = '$id';");
+	    $oldInfo = mysql_fetch_array($q);
+      break;    
   }
     
     
@@ -721,31 +795,45 @@ function deleteUser ($account_id) {
 		return FALSE;
 	}
   
-  if(accounttype($account_id == 'company')) {
+  if(accounttype($account_id) == 'company' || accounttype($account_id) == 'state') {
     if ( !mysql_query ("DELETE FROM `companies` WHERE `id` = '$id';") ) {
 		  report_error ("Произошла ошибка удаления записи о предприятии"); 
 		  mysql_query ("ROLLBACK;");
 		  return FALSE;
 	  }
   }
-	               
-  if(accounttype($account_id == 'user')) {
-	 $log = 'Удаление пользователя '.$id.'. Параметры аккаунта: name:'.$oldInfo['name'].' surname:'.$oldInfo['surname'].' litgroup:'.$oldInfo['litgroup'].', photo_url:'.$oldInfo['photo_url'].' group:';
+  if(accounttype($account_id) == 'state')
+  {    
+    if ( !mysql_query ("DELETE FROM `states` WHERE `account_id` = '$id';") ) {
+		  report_error ("Произошла ошибка удаления записи о партии"); 
+		  mysql_query ("ROLLBACK;");
+		  return FALSE;
+	  }
+  } 
+	  
+  switch(accounttype($account_id)){             
+    case 'user':
+	   $log = 'Удаление пользователя '.$id.'. Параметры аккаунта: name:'.$oldInfo['name'].' surname:'.$oldInfo['surname'].' litgroup:'.$oldInfo['litgroup'].', photo_url:'.$oldInfo['photo_url'].' group:';
 	
-    for ($i=0; $i<mysql_num_rows($w); $i++) {
-	   $oldGroups = mysql_fetch_array($w); 
-	   $log .= $oldGroups["bankgroup"].',';
-    }
+      for ($i=0; $i<mysql_num_rows($w); $i++) {
+	     $oldGroups = mysql_fetch_array($w); 
+	     $log .= $oldGroups["bankgroup"].',';
+      }
+      break;
+      
+    case 'company':
+      $log = 'Удаление компании '.$id.'. Параметры аккаунта: name:'.$oldInfo['oname'].' balance_all:'.$oldInfo['balance_all'];
+      break;
+   
+    case 'state':  
+      $log = 'Удаление партии '.$id.'. Параметры аккаунта: name:'.$oldInfo['name '].' bankname:'.$oldInfo['bankname'];
+      break;
   }
-  else
-  { 
-    $log = 'Удаление компании '.$id.'. Параметры аккаунта: name:'.$oldInfo['oname'].' balance_all:'.$oldInfo['balance_all'];
-	}
 	
 	if ( !mysql_query ("
 	INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
 	VALUES ('$account[id]', '$id', '$log', '$_SERVER[REMOTE_ADDR]');") ) {
-		report_error ("Произошла ошибка записи в логи. Компания не была удаена");
+		report_error ("Произошла ошибка записи в логи. Пользователь не был удаен");
 		return FALSE;
 	}
 	
@@ -814,6 +902,54 @@ function addCompany ( $name, $currency ) {
 	
 	mysql_query ("INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
 	VALUES ($account[id], $id, 'Создание компании', '$_SERVER[REMOTE_ADDR]');");
+	
+	return id2account ($id);
+}   
+function addState ( $name, $currency ) {
+  global $account;
+	
+	$arg = func_get_args();
+	foreach ( $arg as $key=>$value ) {
+		if ( $value == '' ) {
+			report_error ("Форма заполнена не полностью");
+			return FALSE;
+		}
+	}
+	
+	$q = mysql_query ("SELECT * FROM `companies` WHERE `oname` = '$name';");
+	if ( mysql_num_rows ($q) > 0 ) {
+		report_error ("Партия с такими названием уже существует");
+		return FALSE;
+	}
+	
+	$q = mysql_query ("SELECT MAX(`id`) FROM `companies`");
+	$f = mysql_fetch_array ($q);
+	if ( ($id = $f['MAX(`id`)'] + 1) == 1 ) $id = 1001;
+	
+	if ( !mysql_query ("
+	INSERT INTO `accounts` (`id`, `currency`, `TimeModify`)
+	VALUES ('$id', '$currency', NOW() )") ) {
+		report_error ("Произошла ошибка создания банковского счета");
+		return FALSE;
+	}
+	if ( !mysql_query ("
+	INSERT INTO `companies` (`id`, `oname`)
+	VALUES ('$id', '$name')") ) {
+		report_error ("Произошла ошибка создания пользователя"); 
+		mysql_query ("DELETE FROM `accounts` WHERE `accounts`.`id` = $id LIMIT 1");
+		return FALSE;
+	}
+  if( !mysql_query ("
+	INSERT INTO `states` (`name`, `bankname`, `account_id`)
+	VALUES ('$name', 'state$id', '$id')")) {
+		report_error ("Произошла ошибка создания партии"); 
+		mysql_query ("DELETE FROM `accounts` WHERE `accounts`.`id` = $id LIMIT 1");
+		mysql_query ("DELETE FROM `companies` WHERE `companies`.`id` = $id LIMIT 1");
+		return FALSE;
+	}
+	
+	mysql_query ("INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
+	VALUES ($account[id], $id, 'Создание партий', '$_SERVER[REMOTE_ADDR]');");
 	
 	return id2account ($id);
 }

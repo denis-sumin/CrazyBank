@@ -38,7 +38,7 @@ function print_account_info ($account_id) {
 				<tr><td>Фамилия:</td><td>'.$account['surname'].'</td></tr>
 				<tr><td>Имя:</td><td>'.$account['name'].'</td></tr>
 				<tr><td>Группа:</td><td>'.$account['litgroup'].'</td></tr>
-				<tr><td>Государство:</td><td>'.$states[$account['state']].'</td></tr>';
+				<tr><td>Партия:</td><td>'.$states[$account['state']].'</td></tr>';
 		// лучше проверку прав текущего пользователя			
 			if ( @check_account_access ('admin') || @check_account_access ('bankteller') || $account['id'] == @$_SESSION['account_id'] ) {
 				
@@ -104,8 +104,41 @@ function print_account_info ($account_id) {
 			';
 			echo '
 			</table>'."\n";
-			break;
-	}
+			break;   
+      
+    case 'state': 
+      $currency = getCurrencyList();
+			
+			echo '
+			<table class="userinfo" style="min-width: 300px;">
+				<tr><td>Номер счета:</td><td>'.$account['id'].'</td></tr>
+				<tr><td>Название партии:</td><td>'.$account['name'].'</td></tr>
+			';
+			if ( @check_account_access ('admin') ) {
+			echo'
+				<tr><td>Баланс счета:</td><td>'.balance_format ($account['balance'],0).'</td></tr>
+				<tr><td>Валюта:</td><td>'.$currency[$account['currency']].'</td></tr>
+				<tr><td>Блокировка счета:</td><td>'.$account['blocked'].'</td></tr>
+			';
+			}
+			echo '<tr><td style="vertical-align: top;">Члены партии:</td><td><ul>';
+				if (!empty ($account['users'])) foreach ($account['users'] as $key=>$value) {
+					$q = mysql_query("SELECT * FROM `users` WHERE id='$value'");
+					$f = mysql_fetch_array($q);
+					if (empty ($f)) continue;
+					if ( @check_account_access ('accountlists') )
+						echo '<li><a href="?action=account_info&account_id='.id2account($f['id']).'">'.$f['name'].' '.$f['surname'].'</a>';
+					else
+						echo '<li>'.$f['name'].' '.$f['surname'];
+					if ( check_account_access ('admin') ) echo ': '.$account['user_percent'][$key]."&nbsp;%";
+					echo "</li>\n";
+				}
+				echo '		</ul></td></tr>
+			';
+			echo '
+			</table>'."\n";
+			break;  
+	}     
 	return TRUE;
 }
 
@@ -215,7 +248,7 @@ function print_account_log ($log, $case='') {
 	if ( $case == 'state_report' ) $GlobalTax = 0;
 	foreach ($log as $log_item) {         
 		if ( $case == 'state_report' ) {
-			if ( $log_item['comment'] == 'Налог государства' ) {
+			if ( $log_item['comment'] == 'Налог партии' ) {
 				$TaxesToId = $log_item['account_id_to'];    
 				$TimeOfTaxes = $log_item['timestamp'];    
 				$GlobalTax += $log_item['money'];
@@ -227,7 +260,7 @@ function print_account_log ($log, $case='') {
 				<td>Граждане</td>
 				<td>'.$TaxesToId.'</td>
 				<td>'.$GlobalTax.'</td>
-				<td>Налог государства</td>
+				<td>Налог партии</td>
 				<td>'.$TimeOfTaxes.'</td>
 			</tr>
 				';  

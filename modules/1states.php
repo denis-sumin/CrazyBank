@@ -41,21 +41,28 @@ function show_states( $action ) {
 			break;
 		case 'government_reports':
 		
-			$states = getStatesList();
-			$state_accounts = getStatesAccounts();
+      if($account['state'] == 'Edro')
+      {
+        echo 'Вы не состоите в партии!';
+      }      
+      else
+      {
+			 $states = getStatesList();
+			 $state_accounts = getStatesAccounts();
 			
-			echo '<h2>'.$states[$account['state']].'</h2>';
+			 echo '<h2>'.$states[$account['state']].'</h2>';
 			
-			$income = getMoneyLog( '', $state_accounts[$account['state']] );
-			$outgoing = getMoneyLog( $state_accounts[$account['state']], '' );
+			 $income = getMoneyLog( '', $state_accounts[$account['state']] );
+			 $outgoing = getMoneyLog( $state_accounts[$account['state']], '' );
 			
-			echo '<h3>Траты партии</h3>';
-			print_account_log ( $outgoing['logs'], 'state_report' );
-			echo '<p>Сумма: '.$outgoing['sum'].'</p>';
-			echo '<h3>Доходы партии</h3>';
-			print_account_log ( $income['logs'], 'state_report' );	
-			echo '<p>Сумма: '.$income['sum'].'</p>';		
-			break;
+			 echo '<h3>Траты партии</h3>';
+			 print_account_log ( $outgoing['logs'], 'state_report' );
+			 echo '<p>Сумма: '.$outgoing['sum'].'</p>';
+			 echo '<h3>Доходы партии</h3>';
+			 print_account_log ( $income['logs'], 'state_report' );	
+			 echo '<p>Сумма: '.$income['sum'].'</p>';	
+      } 	
+		  break;
 		
 		case 'government_charts':
 			
