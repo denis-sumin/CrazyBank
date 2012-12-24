@@ -422,8 +422,20 @@ function formAccountArray ( $type, $sortField='id', $sortDir='ASC' ) {
 			
 			$q = mysql_query("SELECT * FROM `accounts` INNER JOIN `companies` ON `accounts`.`id` = `companies`.`id` ORDER BY `$sortTable`.`$sortField` $sortDir, `companies`.`oname` ASC;");
 			
-			for ($i=0; $i < mysql_num_rows ($q); $i++) {
-				$f = mysql_fetch_array($q);
+      //Костылище  
+      //$states_num = 0;
+			for ($i=0; $i < mysql_num_rows ($q) - $states_num; $i++) {
+				$f = mysql_fetch_array($q); 
+        //$test = $f['id'];  
+        //echo $test;
+        //$q1=mysql_query("SELECT * FROM `states` WHERE `account_id` = `$test`");
+        //echo mysql_fetch_array($q1);
+        //if(mysql_num_rows($q1) !== 0) 
+        //{        
+        //  $i--;
+        //  $states_num++;
+        //  continue;
+        //}
 				$array[$i]['id'] = id2account ( $f['id'] );
 				$array[$i]['oname'] = $f['oname'];
 				$array[$i]['balance'] = balance_format ($f['balance']*$rates[$f['currency']]);			
@@ -1167,37 +1179,47 @@ function collect_taxes() {
 
 	mysql_query ("START TRANSACTION;");
 	
-	// налоги для leftwing
-	$tax = 10;
-	$account_id_to = $state_accounts['leftwing'];
-	foreach ( formAccountArray ('user') as $account )
-		if ( $account['state'] == 'leftwing' ) {
-			$q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '".$account['id']."' AND `balance` < $tax");
-			if (mysql_num_rows($q)!==0) continue;
-			$q = mysql_query("SELECT * FROM  `company_participators` WHERE  `uid` = '".$account['id']."'");
-			if (mysql_num_rows($q)==0) {
-				$accountlist[]=$account['id'];
-				$currency[]=$account['currency'];
-			}
-		}
-	foreach ( $accountlist as $key=>$id ) {
-		$account_id_from = id2account($id);
-		if (!transmit ($account_id_from, $account_id_to, $tax, $currency[$key], 'Налог государства')) {
-			mysql_query ("ROLLBACK;");
-			return FALSE;
-		}
+	// налоги для компаний
+	//$tax = 0.05; //5% от счета
+	$account_id_to = $state_accounts['state1027'];
+	foreach ( formAccountArray ('company') as $account ){
+		$q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '".$account['id']."' AND `balance` <= 0");
+		if (mysql_num_rows($q)!==0) continue;
+		$accountlist[]=$account['id'];
+		$currency[]=$account['currency'];
+  }   
+  if(isset($accountlist))
+  {       
+	 foreach ( $accountlist as $key=>$id ) {  
+   //print_r($accountlist);
+    //echo $accountlist;
+	  $account_id_from = id2account($id); 
+    $q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '$id'");
+    $f = mysql_fetch_array($q);      
+    //echo ((int)$f['balance'] / 100 * 5);  
+    $tax = ((int)$f['balance'] / 100 * 5);  
+    //echo round($f['balance'])/1;   
+    //echo account2id($account_id_from);
+	  if (!transmit ($account_id_from, $account_id_to, $tax, $currency[$key], 'Налог государства')) {
+		 mysql_query ("ROLLBACK;");
+		 return FALSE;
+	  }
+   } 
 	}
 	unset ($accountlist);
-	// налоги для rightwing
-	$tax = 15;
-	$account_id_to = $state_accounts['rightwing'];
-	foreach ( formAccountArray ('user') as $account )
-		if ( $account['state'] == 'rightwing' ) {
-			$q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '".$account['id']."' AND `balance` < $tax");
-			if (mysql_num_rows($q)!==0) continue;
-			$accountlist[]=$account['id'];
-			$currency[]=$account['currency'];
-		}
+     
+	// налоги для пользователей
+	$tax = 5; //5 Ерошек
+	$account_id_to = $state_accounts['state1027'];
+	foreach ( formAccountArray ('user') as $account ){
+		$q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '".$account['id']."' AND `balance` < $tax");
+		if (mysql_num_rows($q)!==0) continue;   
+		$q = mysql_query("SELECT * FROM  `company_participators` WHERE  `uid` = '".$account['id']."'");
+		if (mysql_num_rows($q)==0) {
+		  $accountlist[]=$account['id'];
+		  $currency[]=$account['currency'];
+	  }
+  }
 	foreach ( $accountlist as $key=>$id ) {
 		$account_id_from = id2account($id);
 		if (!transmit ($account_id_from, $account_id_to, $tax, $currency[$key], 'Налог государства')) {

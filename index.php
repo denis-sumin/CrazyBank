@@ -147,16 +147,17 @@ define ("RequestModule", 'core');
 $modpath = "./modules/";
 $path = opendir($modpath);
 while (($file = readdir($path))!== false)
-    {
+{
 	$files[] = $file;
-    }
+}
 closedir($path);
 sort ($files);
-foreach ($files as $file) {
-	if ($file == '.' || $file == '..' || substr($file, -4, 4) != '.php' ) continue;
-	$modfile = file($modpath.$file);
-	if ($modfile[1] != "// ItIsCrazyBankModule\n") continue;
-	include ($modpath.$file);
+foreach ($files as $file) { 
+	if ($file == '.' || $file == '..' || substr($file, -4, 4) != '.php' ) continue; 
+	$modfile = file($modpath.$file);  
+  $module_file_header = "// ItIsCrazyBankModule";
+  if ($modfile[1] != $module_file_header."\r\n" && $modfile[1] != $module_file_header."\n") continue; 
+	include ($modpath.$file);  
 }
 
 // Шапка: правящая партия и валюта
