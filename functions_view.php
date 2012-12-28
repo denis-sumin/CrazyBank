@@ -15,7 +15,7 @@ function print_errors() {
 		}
 		echo '</ul>
 		<p><a href="javascript:history.back()"><i>Назад</i></a></p>
-		<p>Обо всех ошибках работы системы сообщайте, пожалуйста, Правительству Crazy&nbsp;Week (Аудитория&nbsp;304) или Денису Сумину (<a href="mailto:denis@304.ru">denis@304.ru</a>)</p>
+		<p>Обо всех ошибках работы системы сообщайте, пожалуйста, Коле Яковлеву&nbsp;(<a href="http://vk.com/deylak">vk.com/deylak</a>) или Денису Сумину (<a href="mailto:denis@304.ru">denis@304.ru</a>)</p>
 		</div>';
 		print_footer();
 		die();
@@ -274,6 +274,114 @@ function print_account_log ($log, $case='') {
 			<td>'.balance_format($log_item['money']).'</td>
 			<td>'.$log_item['comment'].'</td>
 			<td>'.$log_item['timestamp'].'</td>
+		</tr>
+		';      
+	}
+	echo '
+	</table>
+	';
+}       
+
+function print_admin_log ($log) {
+	echo '
+	<table>
+		<tr>
+			<th>ID администратора</th>
+			<th>ID счета, над которым совершено действие</th>
+			<th>Описание действия</th>
+			<th>IP-адрес</th>
+			<th>Время действия</th>
+		</tr>
+	';      
+	foreach ($log as $log_item) {  
+		echo '
+		<tr>
+			<td>'.$log_item['admin_id'].'</td>
+			<td>'.$log_item['account_id'].'</td>
+			<td>'.$log_item['action'].'</td>
+			<td>'.$log_item['ip'].'</td>    
+			<td>'.$log_item['time'].'</td>
+		</tr>
+		';      
+	}
+	echo '
+	</table>
+	';
+}     
+
+function print_errors_log ($log) {
+	echo '
+	<table>
+		<tr>
+			<th>ID пользователя, получившего ошибку.</th>
+			<th>Текст выданной ошибки</th>
+			<th>IP пользователя</th>
+			<th>Время ошибки</th>
+		</tr>
+	';      
+	foreach ($log as $log_item) {  
+		echo '
+		<tr>
+			<td>'.$log_item['id'].'</td>
+			<td>'.$log_item['error'].'</td>
+			<td>'.$log_item['ip'].'</td>
+			<td>'.$log_item['time'].'</td>    
+		</tr>
+		';      
+	}
+	echo '
+	</table>
+	';
+}   
+
+function print_logins_log ($log) {
+	echo '
+	<table>
+		<tr>
+			<th>ID счета</th>
+			<th>IP-адрес</th>
+			<th>Флаг успешного входа</th>
+			<th>Время попытки входа</th>
+		</tr>
+	';      
+	foreach ($log as $log_item) {  
+		echo '
+		<tr>
+			<td>'.$log_item['id'].'</td>
+			<td>'.$log_item['ip'].'</td>
+			<td>'.$log_item['success'].'</td>
+			<td>'.$log_item['timestamp'].'</td>    
+		</tr>
+		';      
+	}
+	echo '
+	</table>
+	';
+}      
+
+function print_money_log ($log) {
+	echo '
+	<table>
+		<tr>
+			<th>ID счета отправителя</th>
+			<th>ID счета получателя</th>
+			<th>Сумма перевода</th>
+			<th>Валюта, в которой совершен перевод</th>  
+			<th>Комментарий к переводу</th>            
+			<th>IP-адрес</th>                   
+			<th>Время перевода</th>
+		</tr>
+	';      
+	foreach ($log as $log_item) {  
+		echo '
+		<tr>
+			<td>'.$log_item['id_from'].'</td>
+			<td>'.$log_item['id_to'].'</td>
+			<td>'.$log_item['money'].'</td>
+			<td>'.$log_item['currency'].'</td>  
+			<td>'.$log_item['comment'].'</td>
+			<td>'.$log_item['ip'].'</td>  
+			<td>'.$log_item['timestamp'].'</td>   
 		</tr>
 		';      
 	}

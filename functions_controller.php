@@ -1284,6 +1284,13 @@ function increase_state_balance( $account_id, $n ) {
 }
 */
 
+function less ($array, $element_from, $offset) {
+  for($i = $element_from; $i < count($array) && $i < $element_from + $offset; $i++){
+    $result_array[$i - $element_from] = $array[$i];
+  }
+  
+  return $result_array;
+}
 
 function getMoneyLog ( $account_id_from, $account_id_to ) {
 	$sql = "SELECT * FROM  `logs_money`";
@@ -1320,15 +1327,76 @@ function getMoneyLog ( $account_id_from, $account_id_to ) {
 	}
 	
 	return array( 'logs'=>$log, 'sum'=>$sum );
+}     
+
+  
+function getGlobalAdminLog () {
+	if ( !($q = mysql_query ("SELECT * FROM  `logs_admin`"))) {
+		report_error ("Не удалось получить логи из базы данных"); 
+	}
+	for ($i = 0; $i < mysql_num_rows ($q); $i++) {
+		$f = mysql_fetch_array($q);
+		
+		$log[$i]['admin_id'] = $f['admin_id'];
+		$log[$i]['account_id'] = $f['account_id'];
+		$log[$i]['action'] = $f['action'];
+		$log[$i]['ip'] = $f['ip'];   
+		$log[$i]['time'] = $f['time'];
+	}
+	
+	return $log;
 }
+     
+function getGlobalErrorsLog () {
+	if ( !($q = mysql_query ("SELECT * FROM  `logs_errors`"))) {
+		report_error ("Не удалось получить логи из базы данных"); 
+	}
+	for ($i = 0; $i < mysql_num_rows ($q); $i++) {
+		$f = mysql_fetch_array($q);
+		
+		$log[$i]['id'] = $f['id'];
+		$log[$i]['error'] = $f['error'];
+		$log[$i]['ip'] = $f['ip'];
+		$log[$i]['time'] = $f['time'];  
+	}
+	
+	return $log;
+}     
 
+function getGlobalLoginsLog () {
+	if ( !($q = mysql_query ("SELECT * FROM  `logs_logins`"))) {
+		report_error ("Не удалось получить логи из базы данных"); 
+	}
+	for ($i = 0; $i < mysql_num_rows ($q); $i++) {
+		$f = mysql_fetch_array($q);
+		
+		$log[$i]['id'] = $f['id'];
+		$log[$i]['ip'] = $f['ip'];
+		$log[$i]['success'] = $f['success'];
+		$log[$i]['timestamp'] = $f['timestamp'];  
+	}
+	
+	return $log;
+}   
 
-
-
-
-
-
-
+function getGlobalMoneyLog () {
+	if ( !($q = mysql_query ("SELECT * FROM  `logs_money`"))) {
+		report_error ("Не удалось получить логи из базы данных"); 
+	}
+	for ($i = 0; $i < mysql_num_rows ($q); $i++) {
+		$f = mysql_fetch_array($q);
+		
+		$log[$i]['id_from'] = $f['id_from'];
+		$log[$i]['id_to'] = $f['id_to'];
+		$log[$i]['money'] = $f['money'];
+		$log[$i]['currency'] = $f['currency'];  
+		$log[$i]['comment'] = $f['comment']; 
+		$log[$i]['ip'] = $f['ip'];  
+		$log[$i]['timestamp'] = $f['timestamp']; 
+	}
+	
+	return $log;
+}
 
 
 function add_vote ( $vote_topic, $vote_variants, $state_filter, $active_flag ) {
