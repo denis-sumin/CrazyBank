@@ -177,60 +177,64 @@ function mass_print_pins () {
 }
 
 function print_cheque () {
-	
 	$q = mysql_query ("SELECT * FROM `accounts_res` INNER JOIN `users` ON `accounts_res`.`id` = `users`.`id` WHERE `balance`>'10' ORDER BY `litgroup`, `surname`");
-	for ($i = 0; $i < mysql_num_rows ($q); $i++) {
-		$f = mysql_fetch_array($q);
-		$print = '';
-		if ( ($i+1)%7==0 ) { $print = ' style="page-break-after:always"'; }
-		echo '<table width="100%" border="0" id="chequetoprint"'.$print.'>';
-		echo '
-		<tr><th colspan="3">Чек для предъявления на аукционе Crazy Week</th></tr>
-		<tr>
-			<td class="pinfo">
-				<table class="form"><tr><td align="right">Номер&nbsp;счета:</td><td>'.id2account($f['id']).'</td></tr>
-				<tr><td align="right">Фамилия:</td><td>'.$f['surname'].'</td></tr>
-				<tr><td align="right">Имя:</td><td>'.$f['name'].'</td></tr>
-				<tr><td align="right">Группа:</td><td>'.$f['litgroup'].'</td></tr></table>
-			</td>
-			<td class="balance">'.number_format($f['balance'],0,'','').'</td>
-			<td width="66px"><img src="./images/LITavrik.jpg" width="66px" /></td>
-		</tr>
-		</table>';
-		
+	if (!$q) {
+		report_error("Для генерации чеков необходимо скопировать таблицу accounts в таблицу accounts_res.");
 	}
-	
-	$q = mysql_query ("SELECT * FROM `accounts_res` INNER JOIN `companies` ON `accounts_res`.`id` = `companies`.`id` WHERE `balance`>'10' ORDER BY `oname`");
-	for ($i = 0; $i < mysql_num_rows ($q); $i++) {
-		$f = mysql_fetch_array($q);
-		$print = '';
-		if ( ($i+1)%5==0 ) { $print = ' style="page-break-after:always"'; }
-		echo '<table width="100%" border="0" id="chequetoprint"'.$print.'>';
-		echo '
-		<tr><th colspan="3">Чек для предъявления на аукционе Crazy Week</th></tr>
-		<tr>
-			<td class="pinfo">
-				<table class="form"><tr><td align="right">Номер&nbsp;счета:</td><td>'.id2account($f['id']).'</td></tr>
-				<tr><td align="right">Название:</td><td>'.$f['oname'].'</td></tr>
-		';
-		$account = get_account_info(id2account($f['id']));
-		echo '<tr><td style="vertical-align: top;">Сотрудники:</td><td><ul style="margin:0;padding:0;">';
-				if (!empty ($account['users'])) foreach ($account['users'] as $key=>$value) {
-					$q1 = mysql_query("SELECT * FROM `users` WHERE id='$value'");
-					$f1 = mysql_fetch_array($q1);
-					if (empty ($f1)) continue;
-					echo '<li style="list-style:none;margin-left:0;">'.$f1['name'].' '.$f1['surname'].'';					
-					echo "</li>\n";
-				}
-				echo '		</ul></td></tr>
-		';
-		echo '</table>
-			</td>
-			<td class="balance">'.number_format($f['balance'],0,'','').'</td>
-			<td width="66px"><img src="./images/LITavrik.jpg" width="66px" /></td>
-		</tr>
-		</table>';
+	else {
+		for ($i = 0; $i < mysql_num_rows ($q); $i++) {
+			$f = mysql_fetch_array($q);
+			$print = '';
+			if ( ($i+1)%7==0 ) { $print = ' style="page-break-after:always"'; }
+			echo '<table width="100%" border="0" id="chequetoprint"'.$print.'>';
+			echo '
+			<tr><th colspan="3">Чек для предъявления на аукционе Crazy Week</th></tr>
+			<tr>
+				<td class="pinfo">
+					<table class="form"><tr><td align="right">Номер&nbsp;счета:</td><td>'.id2account($f['id']).'</td></tr>
+					<tr><td align="right">Фамилия:</td><td>'.$f['surname'].'</td></tr>
+					<tr><td align="right">Имя:</td><td>'.$f['name'].'</td></tr>
+					<tr><td align="right">Группа:</td><td>'.$f['litgroup'].'</td></tr></table>
+				</td>
+				<td class="balance">'.number_format($f['balance'],0,'','').'</td>
+				<td width="66px"><img src="./images/LITavrik.jpg" width="66px" /></td>
+			</tr>
+			</table>';
+			
+		}
 		
+		$q = mysql_query ("SELECT * FROM `accounts_res` INNER JOIN `companies` ON `accounts_res`.`id` = `companies`.`id` WHERE `balance`>'10' ORDER BY `oname`");
+		for ($i = 0; $i < mysql_num_rows ($q); $i++) {
+			$f = mysql_fetch_array($q);
+			$print = '';
+			if ( ($i+1)%5==0 ) { $print = ' style="page-break-after:always"'; }
+			echo '<table width="100%" border="0" id="chequetoprint"'.$print.'>';
+			echo '
+			<tr><th colspan="3">Чек для предъявления на аукционе Crazy Week</th></tr>
+			<tr>
+				<td class="pinfo">
+					<table class="form"><tr><td align="right">Номер&nbsp;счета:</td><td>'.id2account($f['id']).'</td></tr>
+					<tr><td align="right">Название:</td><td>'.$f['oname'].'</td></tr>
+			';
+			$account = get_account_info(id2account($f['id']));
+			echo '<tr><td style="vertical-align: top;">Сотрудники:</td><td><ul style="margin:0;padding:0;">';
+					if (!empty ($account['users'])) foreach ($account['users'] as $key=>$value) {
+						$q1 = mysql_query("SELECT * FROM `users` WHERE id='$value'");
+						$f1 = mysql_fetch_array($q1);
+						if (empty ($f1)) continue;
+						echo '<li style="list-style:none;margin-left:0;">'.$f1['name'].' '.$f1['surname'].'';					
+						echo "</li>\n";
+					}
+					echo '		</ul></td></tr>
+			';
+			echo '</table>
+				</td>
+				<td class="balance">'.number_format($f['balance'],0,'','').'</td>
+				<td width="66px"><img src="./images/LITavrik.jpg" width="66px" /></td>
+			</tr>
+			</table>';
+			
+		}
 	}
 }
 
