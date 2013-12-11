@@ -44,6 +44,12 @@ pageTracker._trackPageview();
 
 function menu ($curAction) {
 	global $modules, $account;	
+	
+	if( !$modules )
+	{
+		return FALSE;
+	}
+	
 	echo '<ul>';
 	foreach ($modules as $module=>$m) {
 		if ( ($module !== 'welcome') && check_account_access ($module, $account)) {
@@ -68,6 +74,10 @@ function menu ($curAction) {
 function title ($curAction) {
 	global $modules, $account;	
 	
+	if( !$modules )
+	{
+		return '';
+	}
 	foreach ($modules as $module=>$m) {
 		foreach ($modules[$module]['action'] as $key=>$action) {
 			if ($action == $curAction) {
@@ -83,6 +93,12 @@ function title ($curAction) {
 
 function find_module ($action) {
 	global $modules;
+
+	if( !$modules )
+	{
+		return FALSE;
+	}
+
 	foreach ($modules as $module=>$m) {
 		foreach ($modules[$module]['action'] as $key=>$value) {
 			if ($action === $value) return $module;
@@ -110,6 +126,12 @@ function exec_module ($module) {
 
 function check_account_access ( $module ) {
 	global $modules, $account;
+
+	if( !$modules )
+	{
+		return FALSE;
+	}
+	
 	foreach ($account['group'] as $ukey=>$ugroup) {
 		foreach ($modules[$module]['groups'] as $mkey=>$mgroup) {
 			if ( $ugroup == $mgroup ) return TRUE;
@@ -147,15 +169,15 @@ define ("RequestModule", 'core');
 $modpath = "./modules/";
 $path = opendir($modpath);
 while (($file = readdir($path))!== false)
-    {
+{
 	$files[] = $file;
-    }
+}
 closedir($path);
 sort ($files);
 foreach ($files as $file) {
 	if ($file == '.' || $file == '..' || substr($file, -4, 4) != '.php' ) continue;
 	$modfile = file($modpath.$file);
-	if ($modfile[1] != "// ItIsCrazyBankModule\n") continue;
+	if ( trim( $modfile[1] ) != "// ItIsCrazyBankModule" ) continue;
 	include ($modpath.$file);
 }
 
@@ -164,24 +186,29 @@ $states = getStatesList();
 $currency = getCurrencyList();
 //$states_balance = getStatesBalance();
 
-echo '<div id="states"><b>Правящая партия:</b>';
-foreach ($states as $key=>$value) 
-echo '   
-<span style="padding-left: 10px;">
-'.$value.'
-</span>';       
-echo '   
-<span style="padding-left: 10px;">
-<b>Валюта:</b>';
+echo '<div id="states">';
+if( $states )
+{
+	echo '<b>Правящая партия:</b>';
+	foreach ($states as $key=>$value) 
+	echo '   
+	<span style="padding-left: 10px;">
+	'.$value.'
+	</span>'; 	
+}
+if( $currency )
+{
+	echo '   
+	<span style="padding-left: 10px;">
+	<b>Валюта:</b>';
 
-foreach ($currency as $key=>$value) 
-echo '   
-<span style="padding-left: 10px;">
-'.$value.'
-</span>';   
-    
-echo '     
-</span>';     
+	foreach ($currency as $key=>$value) 
+	echo '   
+	<span style="padding-left: 10px;">
+	'.$value.'
+	</span>';
+	echo '</span>'; 
+}      
 echo '</div>';
 // END Успехи государств в шапке
 	

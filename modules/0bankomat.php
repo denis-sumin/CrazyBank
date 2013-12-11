@@ -172,6 +172,12 @@ function show_bankomat( $action ) {
 			
 			//echo '<h2>'.$states[$account['state']].'</h2>';
 			
+			if( !@$account['account_id'] )
+			{
+				echo 'Невозможно получить информацию о счёте.';
+				break;
+			}
+
 			$income = getMoneyLog( '', $account['account_id'] );
 			$outgoing = getMoneyLog( $account['account_id'], '' );
 			

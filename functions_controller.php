@@ -15,6 +15,11 @@ function check_password ($account_id, $password) {
 	if ( !($id = account2id ($account_id) ) ) return FALSE;
 	
 	$q = mysql_query ("SELECT * FROM `accounts` WHERE `id`='$id' AND `blocked`='1';");
+	if( !$q )
+	{
+		report_error( "Не удалось выполнить запрос к таблице accounts базы данных." );
+		return FALSE;
+	}
 	if( mysql_num_rows ($q) > 0 ) {
 		report_error( "Счет ".$account_id." заблокирован. О причинах блокировки счета Вы можете узнать в Правительстве Crazy Week (Аудитория 304)" );
 		return FALSE;
@@ -385,7 +390,12 @@ function formAccountArray ( $type, $sortField='id', $sortDir='ASC' ) {
 
 function getGroupsList () {
 	$q = mysql_query ("SELECT * FROM `groups`");
-	for ($i=0; $i < mysql_num_rows ($q); $i++) {
+	if( !$q )
+	{
+		return FALSE;
+	}
+	for ($i=0; $i < mysql_num_rows ($q); $i++)
+	{
 		$f = mysql_fetch_array($q);
 		$list[$f['bankname']] = $f['name'];
 	}
@@ -394,7 +404,12 @@ function getGroupsList () {
 
 function getCurrencyList() {
 	$q = mysql_query ("SELECT * FROM `currency`");
-	for ($i=0; $i < mysql_num_rows ($q); $i++) {
+	if( !$q )
+	{
+		return FALSE;
+	}
+	for ($i=0; $i < mysql_num_rows ($q); $i++)
+	{
 		$f = mysql_fetch_array($q);
 		$list[$f['bankname']] = $f['name'];
 	}
@@ -403,7 +418,12 @@ function getCurrencyList() {
 
 function getStatesList() {
 	$q = mysql_query ("SELECT * FROM `states`");
-	for ($i=0; $i < mysql_num_rows ($q); $i++) {
+	if( !$q )
+	{
+		return FALSE;
+	}
+	for ($i=0; $i < mysql_num_rows ($q); $i++)
+	{
 		$f = mysql_fetch_array($q);
 		$list[$f['bankname']] = $f['name'];
 	}
@@ -411,7 +431,12 @@ function getStatesList() {
 }
 function getStatesAccounts () {
 	$q = mysql_query ("SELECT * FROM `states`");
-	for ($i=0; $i < mysql_num_rows ($q); $i++) {
+	if( !$q )
+	{
+		return FALSE;
+	}
+	for ($i=0; $i < mysql_num_rows ($q); $i++)
+	{
 		$f = mysql_fetch_array($q);
 		$list[$f['bankname']] = $f['account_id'];
 	}
@@ -419,7 +444,12 @@ function getStatesAccounts () {
 }
 function getStatesBalance() {
 	$q = mysql_query ("SELECT * FROM `states`");
-	for ($i=0; $i < mysql_num_rows ($q); $i++) {
+	if( !$q )
+	{
+		return FALSE;
+	}
+	for ($i=0; $i < mysql_num_rows ($q); $i++)
+	{
 		$f = mysql_fetch_array($q);
 		$list[$f['bankname']] = balance_format ( balance( $f['account_id'] ) );
 	}
@@ -428,7 +458,12 @@ function getStatesBalance() {
 
 function getRates() {
 	$q = mysql_query ("SELECT * FROM `currency`");
-	for ($i=0; $i < mysql_num_rows ($q); $i++) {
+	if( !$q )
+	{
+		return FALSE;
+	}
+	for ($i=0; $i < mysql_num_rows ($q); $i++)
+	{
 		$f = mysql_fetch_array($q);
 		$list[$f['bankname']] = $f['rate'];
 	}
