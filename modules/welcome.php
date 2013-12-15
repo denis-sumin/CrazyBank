@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // ItIsCrazyBankModule
 
 $module = 'welcome';
@@ -18,6 +18,7 @@ function show_welcome () {
 	if (check_account_access ('admin', $account)) 
 	echo '
 	<p>Заметки администратора администратору :-)</p>
+  	<a>http://93.180.7.130/phpmyadmin/index.php?db=crazy</a>
 	';
 	/*
 	<p><i>new:</i> Добавил возможность видеть балансы счетов в списках пользователей и компаний. Только для пользователей, включенных в группу «Банковский кассир»</p>

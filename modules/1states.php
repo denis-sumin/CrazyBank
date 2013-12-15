@@ -15,15 +15,15 @@ $modules[$module]['action'][] = 'government_reports';
 $modules[$module]['menu'][] = 'Отчеты партии';
 $modules[$module]['title'][] = 'Отчеты партии';
 
-$modules[$module]['action'][] = 'government_charts';
-$modules[$module]['menu'][] = 'Успехи на графике';
-$modules[$module]['title'][] = 'Успехи партии на графике';
+// $modules[$module]['action'][] = 'government_charts';
+// $modules[$module]['menu'][] = 'Успехи на графике';
+// $modules[$module]['title'][] = 'Успехи партии на графике';
 
 $modules[$module]['groups'][] = 'user'; // группы, которым разрешено пользоваться модулем
 
 function show_states( $action ) {
 	global $modules, $account, $accountlist;	
-	$module = $modules['rates'];
+	// $module = $modules['rates'];
 
 	switch ($action) {
 		case 'government_lists':
@@ -39,23 +39,31 @@ function show_states( $action ) {
 			}
 			
 			break;
+
 		case 'government_reports':
 		
-			$states = getStatesList();
-			$state_accounts = getStatesAccounts();
-			
-			echo '<h2>'.$states[$account['state']].'</h2>';
-			
-			$income = getMoneyLog( '', $state_accounts[$account['state']] );
-			$outgoing = getMoneyLog( $state_accounts[$account['state']], '' );
-			
-			echo '<h3>Траты партии</h3>';
-			print_account_log ( $outgoing['logs'], 'state_report' );
-			echo '<p>Сумма: '.$outgoing['sum'].'</p>';
-			echo '<h3>Доходы партии</h3>';
-			print_account_log ( $income['logs'], 'state_report' );	
-			echo '<p>Сумма: '.$income['sum'].'</p>';		
-			break;
+		    if($account['state'] == 'Edro')
+		    {
+		      echo 'Вы не состоите в партии!';
+		    }      
+		    else
+		    {
+				$states = getStatesList();
+				$state_accounts = getStatesAccounts();
+				
+				echo '<h2>'.$states[$account['state']].'</h2>';
+				
+				$income = getMoneyLog( '', $state_accounts[$account['state']] );
+				$outgoing = getMoneyLog( $state_accounts[$account['state']], '' );
+				
+				echo '<h3>Траты партии</h3>';
+				print_account_log ( $outgoing['logs'], 'state_report' );
+				echo '<p>Сумма: '.$outgoing['sum'].'</p>';
+				echo '<h3>Доходы партии</h3>';
+				print_account_log ( $income['logs'], 'state_report' );	
+				echo '<p>Сумма: '.$income['sum'].'</p>';	
+		      } 	
+		  break;
 		
 		case 'government_charts':
 			

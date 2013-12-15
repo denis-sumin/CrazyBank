@@ -189,7 +189,7 @@ $currency = getCurrencyList();
 echo '<div id="states">';
 if( $states )
 {
-	echo '<b>Правящая партия:</b>';
+	echo '<b>Состав парламента:</b>';
 	foreach ($states as $key=>$value) 
 	echo '   
 	<span style="padding-left: 10px;">
