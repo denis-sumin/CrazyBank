@@ -12,6 +12,7 @@
     'Выпускник','Преподаватель'
   );
   
-  $auction_module_enabled = FALSE;
+  $g_config['auction_module_enabled'] = FALSE;
+  $g_config['printing_PINs_enabled'] = TRUE;
 
 ?>

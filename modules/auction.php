@@ -1,7 +1,7 @@
 ﻿<?php
 // ItIsCrazyBankModule
 
-if( $auction_module_enabled )
+if( $g_config['auction_module_enabled'] )
 {
 	$module = 'auction';
 

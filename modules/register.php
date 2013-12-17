@@ -19,8 +19,11 @@ $modules[$module]['action'][] = 'mass-activate';
 $modules[$module]['menu'][] = 'Массовая активация';
 $modules[$module]['title'][] = 'Массовая активация';
 
-//$modules[$module]['action'][] = 'mass_print_pins'; // работает полностью
-//$modules[$module]['menu'][] = 'Массовое изменение ПИНов и&nbsp;вывод&nbsp;для&nbsp;печати';
+if( $g_config['printing_PINs_enabled'] )
+{
+	$modules[$module]['action'][] = 'mass_print_pins'; // работает полностью
+	$modules[$module]['menu'][] = 'Массовое изменение ПИНов и&nbsp;вывод&nbsp;для&nbsp;печати';	
+}
 
 $modules[$module]['action'][] = 'import_people_lit_msu_ru';
 $modules[$module]['menu'][] = 'Импорт лицеистов и преподавателей';
