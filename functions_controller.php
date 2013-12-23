@@ -443,7 +443,7 @@ function formAccountArray ( $type, $sortField='id', $sortDir='ASC' ) {
         //}
 				$array[$i]['id'] = id2account ( $f['id'] );
 				$array[$i]['oname'] = $f['oname'];
-				$array[$i]['balance'] = balance_format ($f['balance']*$rates[$f['currency']]);			
+				$array[$i]['balance'] = balance_format ($f['balance']*@$rates[$f['currency']]);			
 			}
 			break;  
 		case 'state':
@@ -456,7 +456,7 @@ function formAccountArray ( $type, $sortField='id', $sortDir='ASC' ) {
 				$f = mysql_fetch_array($q);
 				$array[$i]['id'] = id2account ( $f['id'] );
 				$array[$i]['oname'] = $f['oname'];
-				$array[$i]['balance'] = balance_format ($f['balance']*$rates[$f['currency']]);			
+				$array[$i]['balance'] = balance_format ($f['balance']*@$rates[$f['currency']]);			
 			}
 			break;  
     }
@@ -471,6 +471,7 @@ function getGroupsList () {
 	{
 		return FALSE;
 	}
+	$list = array(); 
 	for ($i=0; $i < mysql_num_rows ($q); $i++)
 	{
 		$f = mysql_fetch_array($q);
@@ -485,6 +486,7 @@ function getCurrencyList() {
 	{
 		return FALSE;
 	}
+	$list = array();
 	for ($i=0; $i < mysql_num_rows ($q); $i++)
 	{
 		$f = mysql_fetch_array($q);
@@ -499,6 +501,7 @@ function getStatesList() {
 	{
 		return FALSE;
 	}
+	$list = array();
 	for ($i=0; $i < mysql_num_rows ($q); $i++)
 	{
 		$f = mysql_fetch_array($q);
@@ -512,6 +515,7 @@ function getStatesAccounts () {
 	{
 		return FALSE;
 	}
+	$list = array();
 	for ($i=0; $i < mysql_num_rows ($q); $i++)
 	{
 		$f = mysql_fetch_array($q);
@@ -525,6 +529,7 @@ function getStatesBalance() {
 	{
 		return FALSE;
 	}
+	$list = array();
 	for ($i=0; $i < mysql_num_rows ($q); $i++)
 	{
 		$f = mysql_fetch_array($q);
@@ -539,10 +544,51 @@ function getRates() {
 	{
 		return FALSE;
 	}
+	$list = array();
 	for ($i=0; $i < mysql_num_rows ($q); $i++)
 	{
 		$f = mysql_fetch_array($q);
 		$list[$f['bankname']] = $f['rate'];
+	}
+	return $list;
+}
+
+function getGoodsList( $account )
+{
+	if( accounttype( $account['id'] ) == 'company' )
+	{
+		$q = mysql_query ("SELECT * FROM `goods` WHERE `company_id` = '".$account['id']."'");
+	}
+	else
+	{
+		$q = mysql_query ("SELECT * FROM `goods`");
+	}
+	
+	if( !$q )
+	{
+		return FALSE;
+	}
+	$list = array();
+	for ($i=0; $i < mysql_num_rows ($q); $i++)
+	{
+		$f = mysql_fetch_array($q);
+		$list[$f['id']] = $f;
+	}
+	return $list;
+}
+
+function getGoodsCategories()
+{
+	$q = mysql_query ("SELECT * FROM `goods_categories`");
+	if( !$q )
+	{
+		return FALSE;
+	}
+	$list = array();
+	for ($i=0; $i < mysql_num_rows ($q); $i++)
+	{
+		$f = mysql_fetch_array($q);
+		$list[$f['id']] = $f['name'];
 	}
 	return $list;
 }
@@ -955,7 +1001,7 @@ function addCompany ( $name, $currency ) {
 	return id2account ($id);
 }   
 function addState ( $name, $currency ) {
-  global $account;
+	global $account;
 	
 	$arg = func_get_args();
 	foreach ( $arg as $key=>$value ) {
@@ -1001,6 +1047,112 @@ function addState ( $name, $currency ) {
 	VALUES ($account[id], $id, 'Создание партий', '$_SERVER[REMOTE_ADDR]');");
 	
 	return id2account ($id);
+}
+
+function addGoodsItem( $company_id, $title, $description, $category_id, $price, $photo_extension )
+{
+
+	$q = mysql_query ("SELECT MAX(`id`) FROM `crazy`.`goods`");
+	$f = mysql_fetch_array ($q);
+	$good_id = $f['MAX(`id`)'] + 1;
+
+	$company_id = account2id( $company_id );
+
+	if( accounttype( $company_id ) != 'company' )
+	{
+		report_error("Введённый номер счёта не является счётом компании");
+		return FALSE;
+	}
+
+	$title = mysql_real_escape_string( $title );
+	$description = mysql_real_escape_string( $description );
+	
+	$category_id_exists = false;
+	foreach ( getGoodsCategories() as $key => $value )
+	{
+		if( $key == $category_id )
+		{
+			$category_id_exists = true;
+		}
+	}
+
+	$price = mysql_real_escape_string( $price );
+
+	$query = "INSERT INTO  `crazy`.`goods` ( `id`, `company_id`, `title`, `description`, `category_id`, `price`, `photo_extension` )
+			VALUES ( '".$good_id."', '".$company_id."', '".$title."', '".$description."', '".$category_id."', '".$price."', '".$photo_extension."' );";
+
+	if( $category_id_exists && mysql_query( $query ) )
+	{
+		return $good_id;
+	}
+	else
+	{
+		report_error("При добавлении товара возникла ошибка");
+		return FALSE;
+	}
+}
+
+function saveGoodsItem( $id, $company_id, $title, $description, $category_id, $price, $photo_extension )
+{
+	$company_id = account2id( $company_id );
+
+	if( accounttype( $company_id ) != 'company' )
+	{
+		report_error("Введённый номер счёта не является счётом компании");
+		return FALSE;
+	}
+
+	$title = mysql_real_escape_string( $title );
+	$description = mysql_real_escape_string( $description );
+	
+	$category_id_exists = false;
+	foreach ( getGoodsCategories() as $key => $value )
+	{
+		if( $key == $category_id )
+		{
+			$category_id_exists = true;
+		}
+	}
+
+	$price = mysql_real_escape_string( $price );
+
+	$query = "
+		UPDATE `crazy`.`goods`
+		SET
+			`company_id` = '".$company_id."',
+			`title` = '".$title."',
+			`description` = '".$description."',
+			`category_id` = '".$category_id."',
+			`price` = '".$price."',
+			`photo_extension` = '".$photo_extension."'
+		WHERE `goods`.`id` = '".$id."';
+	";
+
+	if( $category_id_exists && mysql_query( $query ) )
+	{
+		return TRUE;
+	}
+	else
+	{
+		report_error("При добавлении товара возникла ошибка");
+		return FALSE;
+	}
+}
+
+function addGoodsCategory( $name )
+{
+	$query = "INSERT INTO  `crazy`.`goods_categories` ( `name` )
+			VALUES ( '".$name."' );";
+
+	if( mysql_query( $query ) )
+	{
+		return TRUE;
+	}
+	else
+	{
+		report_error("При добавлении категории возникла ошибка");
+		return FALSE;
+	}
 }
 
 function updateCompanyUsers ( $account_id, $companyusers ) {

@@ -14,6 +14,7 @@ function print_header() {
 			<link type="text/css" rel="stylesheet" media="all" href="style/style.css" />
 			<link type="text/css" rel="stylesheet" media="print" href="style/print.css" />
 			<script src="js/forms.js" type="text/javascript" /></script>
+			<script src="http://yandex.st/jquery/2.0.3/jquery.min.js" type="text/javascript" /></script>
 
 		</head>
 		<body>

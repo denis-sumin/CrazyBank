@@ -92,7 +92,7 @@ function show_votes_admin ($action) {
 					';
 					for ($i=0; $i<10; $i++) {
 						echo '
-							<input type="text" name="variant['.$i.']" value="'.$vote_data['vote_variants'][$i].'" placeholder="вариант '.($i+1).'" size="40" maxlength="256" ';
+							<input type="text" name="variant['.$i.']" value="'.@$vote_data['vote_variants'][$i].'" placeholder="вариант '.($i+1).'" size="40" maxlength="256" ';
 						if ($vote_data['votes_count']>0) echo 'readonly="readonly"';
 						echo ' />
 						';
