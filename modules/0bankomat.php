@@ -48,6 +48,24 @@ function print_report ($log) {
 	echo '</table>';
 }
 
+function execute_transfer( $account_id_from, $account_id_to, $n, $currency, $comment )
+{
+	$transfersToUsersCommission = 0.25;
+
+	if( accounttype( $account_id_to ) == 'user' )
+	{
+		$commission = $n * $transfersToUsersCommission;
+		$res = 
+			transmit( $account_id_from, $account_id_to, ($n-$commission), $currency, $comment, false ) &&
+			transmit( $account_id_from, 0, $commission, $currency, 'Комиссия за перевод '.$comment, false );
+	}
+	else
+	{
+		$res = transmit( $account_id_from, $account_id_to, $n, $currency, $comment );
+	}
+	return $res;
+}
+
 function show_bankomat( $action ) {
 	global $modules, $account, $accountlist;	
 	$module = $modules['bankomat'];
@@ -95,12 +113,12 @@ function show_bankomat( $action ) {
 				$transmit=FALSE;
 				if  (empty ($account['id']) ) { 
 					if ( check_password($_POST['account_id'],$_POST['pin']) ) {
-						if (transmit($_POST['account_id'],$_POST['account_id_to'],$_POST['cash'],$_POST['currency'],$_POST['comment']))  $transmit=TRUE;
+						if ( execute_transfer( $_POST['account_id'], $_POST['account_id_to'], $_POST['cash'], $_POST['currency'], $_POST['comment'] ) )  $transmit=TRUE;
 					}
 				}
 				else {
 					if ( $_POST['session_id'] == session_id() ) {
-						if (transmit($_SESSION['account_id'],$_POST['account_id_to'],$_POST['cash'],$_POST['currency'],$_POST['comment'])) $transmit=TRUE;
+						if ( execute_transfer( $_SESSION['account_id'], $_POST['account_id_to'], $_POST['cash'], $_POST['currency'], $_POST['comment'] ) ) $transmit=TRUE;
 					}
 					else report_error('Зафиксирована попытка обмануть банк. Аяяяй.');
 					
@@ -163,6 +181,7 @@ function show_bankomat( $action ) {
 				<tr><td>Комментарий к переводу:</td><td><input type="text" name="comment" maxlength="128" size="30" /></td></tr>
 				<tr><td></td><td><input type="submit" name="'.$module['action'][1].'" value="Совершить перевод" /></td></tr>
 				</table>
+				<p><b>Внимание</b>: при переводе на счета пользователей (не компаний) взимается комиссия 25 %. Получатель получит 75 % суммы.</p>
 				</form>
 				';
 			}
