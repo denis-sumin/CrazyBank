@@ -15,7 +15,7 @@ $modules[$module]['groups'][] = 'company';
 function show_welcome () {
 	global $account;
 
-	// if (check_account_access ('admin', $account))
+	if (check_account_access ('admin', $account)) {
 	// echo '
 	// <p>Заметки администратора администратору :-)</p>
 	// ';
@@ -28,7 +28,7 @@ function show_welcome () {
 	';
 	*/
 
-	else {
+	} else {
 		echo '
 		<p><big>Добро пожаловать в&nbsp;Crazy Банк!</big></p>
 		<p>Crazy Банк&nbsp;&mdash; это электронная банковская система поддержки Crazy-week.</p>
