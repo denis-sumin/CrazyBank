@@ -14,21 +14,21 @@ $modules[$module]['groups'][] = 'company';
 
 function show_welcome () {
 	global $account;
-	
-	if (check_account_access ('admin', $account)) 
+
+	if (check_account_access ('admin', $account))
 	echo '
 	<p>Заметки администратора администратору :-)</p>
   	<a>http://93.180.7.130/phpmyadmin/index.php?db=crazy</a>
 	';
 	/*
 	<p><i>new:</i> Добавил возможность видеть балансы счетов в списках пользователей и компаний. Только для пользователей, включенных в группу «Банковский кассир»</p>
-	
+
 	<p>Смотреть логи можно, но пока не в замечательном интерфейсе платежной системы.<br />
 	Иди в <a href="http://dev.304.ru/phpmyadmin">PHPMyAdmin</a>, логин crazy-dev, пароль сам знаешь.<br />
 	Тебе будут доступны для просмотра таблицы с логами</p>
 	';
 	*/
-	
+
 	else {
 		echo '
 		<p><big>Добро пожаловать в&nbsp;Crazy Банк!</big></p>

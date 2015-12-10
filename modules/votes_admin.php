@@ -18,16 +18,16 @@ $modules[$module]['title'][] = 'Редактирование голосован�
 $modules[$module]['groups'][] = 'admin';
 
 function show_votes_admin ($action) {
-	global $modules, $account, $accountlist, $group;	
+	global $modules, $account, $accountlist, $group;
 	$module = $modules['admin'];
-	
+
 	switch ($action) {
-		case 'vote_add':			
+		case 'vote_add':
 			if ( isset ($_POST['vote_add']) ) {
 				if ( isset($_POST['active']) && $_POST['active'] == '1' ) $active_flag = 1;
 				else $active_flag = 0;
 				foreach ( $_POST['variant'] as $value ) if ($value !== '') $variant[] = $value;
-				
+
 				echo '<p>';
 				if ( add_vote ( $_POST['vote_topic'], $variant, $_POST['state'], $active_flag ) )
 					echo 'Голосование успешно добавлено';
@@ -52,10 +52,10 @@ function show_votes_admin ($action) {
 					<p>Голосование доступно:
 						<select name="state" size="1" style="width: 200px;">
 							<option value="">всем</option>
-					';				
+					';
 					foreach (getStatesList() as $key=>$value) {
 						echo '<option value="'.$key.'">'.$value.'</option>';
-					}				
+					}
 					echo '
 						</select>
 					</p>
@@ -64,16 +64,16 @@ function show_votes_admin ($action) {
 				';
 			}
 			break;
-		
+
 		case 'vote_edit':
-			if ( isset($_GET['vote_id']) ) {				
+			if ( isset($_GET['vote_id']) ) {
 				if ( isset ($_POST['vote_save']) ) {
 					if ($_GET['vote_id']!==$_POST['vote_id']) report_error('Пахнет обманом. Никогда так не делайте больше');
-					
+
 					if ( isset($_POST['active']) && $_POST['active'] == '1' ) $active_flag = 1;
 					else $active_flag = 0;
 					foreach ( $_POST['variant'] as $value ) if ($value !== '') $variant[] = $value;
-					
+
 					echo '<p>';
 					if ( save_vote ( $_POST['vote_id'], $_POST['vote_topic'], $variant, $_POST['state'], $active_flag ) )
 						echo 'Голосование успешно сохранено';
@@ -105,12 +105,12 @@ function show_votes_admin ($action) {
 						<p>Голосование доступно:
 							<select name="state" size="1" style="width: 200px;">
 								<option value="">всем</option>
-						';				
+						';
 						foreach (getStatesList() as $key=>$value) {
 							if ($key == $vote_data['state_filter']) $atr = 'selected';
 								else $atr = '';
 							echo '<option value="'.$key.'" '.$atr.'>'.$value.'</option>';
-						}				
+						}
 						echo '
 							</select>
 						</p>

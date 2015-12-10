@@ -38,15 +38,15 @@ function print_good_edit_form( $action, $values )
 	echo '
 	<table class="userinfo">
 		<tr>
-			<td>Название</td> 
+			<td>Название</td>
 			<td><input type="text" name="title" value="'.@$values['title'].'" /></td>
 		</tr>
 		<tr>
-			<td>Описание</td> 
+			<td>Описание</td>
 			<td><textarea name="description" style="height: 150px; width: 300px;">'.@$values['description'].'</textarea></td>
 		</tr>
 		<tr>
-			<td>Категория</td> 
+			<td>Категория</td>
 			<td><select name="category_id">';
 			foreach (getGoodsCategories() as $category_id=>$name) {
 				echo '<option value="'.$category_id.'">'.$name.'</option>';
@@ -55,7 +55,7 @@ function print_good_edit_form( $action, $values )
 			</select></td>
 		</tr>
 		<tr>
-			<td>Цена</td> 
+			<td>Цена</td>
 			<td><input type="text" name="price" value="'.@$values['price'].'" /></td>
 		</tr>
 		';
@@ -68,13 +68,13 @@ function print_good_edit_form( $action, $values )
 		{
 			echo '
 			<tr>
-				<td>Счёт компании-продавца</td> 
+				<td>Счёт компании-продавца</td>
 				<td><input type="text" name="company_id" id="account_id" value="'.@$values['company_id'].'" /></td>
-			</tr>';			
+			</tr>';
 		}
 		echo '
 		<tr>
-			<td>Изображение</td> 
+			<td>Изображение</td>
 			<td>
 				<input type="file" name="photo" /><br />
 				Разрешённые типы файлов: jpg, png, gif.<br />
@@ -83,9 +83,9 @@ function print_good_edit_form( $action, $values )
 		</tr>';
 
 		echo '
-		<tr><td>&nbsp;</td> 
+		<tr><td>&nbsp;</td>
 			<td> <input type="submit" name="'.$action.'" value="Сохранить" /></td>
-		</tr>	
+		</tr>
 	</table>
 	</form>
 	</p>';
@@ -129,11 +129,11 @@ function parse_file_upload( $good_id )
 }
 
 function show_shop_admin ($action) {
-	global $modules, $account, $accountlist, $group;	
+	global $modules, $account, $accountlist, $group;
 	// $module = $modules['admin'];
-	
+
 	switch ($action) {
-			
+
 		case 'goods_add_item':
 			if ( isset ($_POST[$action]) ) {
 
@@ -144,9 +144,9 @@ function show_shop_admin ($action) {
 				if ( $good_id && parse_file_upload( $good_id ) )
 				{
 					echo '<p>Товар успешно добавлен</p>';
-				}	
+				}
 				else echo '<p>Ошибка добавления товара</p>';
-				echo '<script>$(document).ready(function () { window.setTimeout(function () { location.href = "'.$_SERVER["PHP_SELF"].'?action=goods_manage"; }, 500) });</script>';				
+				echo '<script>$(document).ready(function () { window.setTimeout(function () { location.href = "'.$_SERVER["PHP_SELF"].'?action=goods_manage"; }, 500) });</script>';
 			}
 			else
 			{
@@ -165,7 +165,7 @@ function show_shop_admin ($action) {
 					parse_file_upload( $_POST['id'] )
 				)  {
 					echo '<p>Товар успешно сохранён</p>';
-				}	
+				}
 				else echo '<p>Ошибка сохранения товара</p>';
 				echo '<script>$(document).ready(function () { window.setTimeout(function () { location.href = "'.$_SERVER["PHP_SELF"].'?action=goods_manage"; }, 500) });</script>';
 			}
@@ -211,22 +211,22 @@ function show_shop_admin ($action) {
 							<th></th>
 						</tr>
 					';
-					foreach( $goods_list as $key => $value ) 
+					foreach( $goods_list as $key => $value )
 					{
 						echo '
 							<tr>
 								<td>'.$value['title'].'</td>
 								<td><a href="'.$_SERVER["PHP_SELF"].'?action='.$action.'&good_id='.$value['id'].'">изменить</a></td>
 							</tr>
-						';				
-					}			
-					echo '</table></p>';		
+						';
+					}
+					echo '</table></p>';
 				}
 
 				echo '<h2>Добавить товар</a></h2>';
 				print_good_edit_form( 'goods_add_item', array() );
 			}
-			
+
 			break;
 
 		case 'goods_manage_categories':
@@ -234,7 +234,7 @@ function show_shop_admin ($action) {
 			if ( isset ($_POST[$action]) ) {
 				if ( addGoodsCategory ( $_POST['name'] ) )  {
 					echo '<p>Категория успешно добавлена</p>';
-				}	
+				}
 				else echo '<p>Ошибка добавления категории</p>';
 			}
 
@@ -247,33 +247,33 @@ function show_shop_admin ($action) {
 					<th></th>
 				</tr>
 			';
-			foreach( $categories_list as $key => $value ) 
+			foreach( $categories_list as $key => $value )
 			{
 				echo '
 					<tr>
 						<td>'.$value.'</td>
 						<td></td>
 					</tr>
-				';				
+				';
 			}
 			echo '</table></p>';
 
-			echo '<h2>Добавить категорию</a></h2>';			
+			echo '<h2>Добавить категорию</a></h2>';
 			echo '
 			<p>
 			<form method="post" action="'.$_SERVER["PHP_SELF"].'?action='.$action.'">
 			<table class="userinfo">
 				<tr>
-					<td>Название</td> 
+					<td>Название</td>
 					<td><input type="text" name="name" /></td>
 				</tr>
-				<tr><td>&nbsp;</td> 
+				<tr><td>&nbsp;</td>
 					<td> <input type="submit" name="'.$action.'" value="Добавить" /></td>
-				</tr>	
+				</tr>
 			</table>
 			</form>
 			</p>';
-			
+
 			break;
 
 	}

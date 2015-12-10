@@ -13,7 +13,7 @@ body * {
 	height: 25px;
 	left:0;
 	position: absolute;
-	right:0; 
+	right:0;
 	top:0;
 	width: auto !important;
 	width: 100%;
@@ -24,10 +24,10 @@ body * {
 	height: 25px;
 	padding: 3px 0 0 1.6%;
 	position: absolute;
-	left:0; 
+	left:0;
 	text-align: left;
 	top:0;
-	z-index: 5;    
+	z-index: 5;
 }
 	#indexlink a {
 		color: #c21e16;
@@ -38,11 +38,11 @@ body * {
 	height: 25px;
 	padding: 3px 20px 0 0;
 	position: absolute;
-	right:0; 
+	right:0;
 	text-align: right;
-	top:0;     
+	top:0;
 }
-	
+
 	#auth a {
 		color: #c21e16;
 		margin-left: 15px;
@@ -53,12 +53,12 @@ body * {
 	height: 25px;
 	padding: 3px 0 0 0;
 	position: absolute;
-	left:15%; 
+	left:15%;
 	text-align: left;
-	top:0;     
+	top:0;
 }
 	#states a {
-		border-bottom: 1px dashed #c21e16; 
+		border-bottom: 1px dashed #c21e16;
 		color: #c21e16;
 		text-decoration: none;
 	}
@@ -66,18 +66,18 @@ body * {
 	#indexlink, #indexlink *, #auth, #auth *, #states, #states * {
 		font-size: 10pt;
 	}
-	
+
 #states {
 	background: transparent;
 	height: 25px;
 	padding: 3px 0 0 0;
 	position: absolute;
-	left:15%; 
+	left:15%;
 	text-align: left;
-	top:0;     
+	top:0;
 }
 	#states a {
-		border-bottom: 1px dashed #c21e16; 
+		border-bottom: 1px dashed #c21e16;
 		color: #c21e16;
 		text-decoration: none;
 	}
@@ -96,13 +96,13 @@ body * {
 	#menu, #menu * {
 		font-size: 12pt;
 	}
-	
+
 	#menu ul, #menu li {
 		list-style: none;
 		margin: 0;
 		padding: 0;
 	}
-	
+
 	#menu li.modulename {
 		margin-top: 15px;
 	}
@@ -138,7 +138,7 @@ h3 {
 	height: auto !important;
 	height: 800px;
 	bottom: 6px;
-	right: 0px;	
+	right: 0px;
 	width: 29.2%;
 }
 
@@ -146,7 +146,7 @@ h3 {
 	background: #f99;
 	border: #f00 1px solid;
 	padding: 15px;
-	
+
 	position: absolute;
 	top:150px;
 	left: 150px;
@@ -165,13 +165,13 @@ table {
 		border: 1px solid #ccc;
 		padding: 1px 6px 1px 4px;
 	}
-	
+
 	table.form th, table.form td {
 		border: 0;
 		padding-left: 0;
 		padding-right: 10fopx;
 	}
-	
+
 	table.userinfo th, table.userinfo td {
 		border-left: 0;
 		border-right: 0;
@@ -182,14 +182,14 @@ table {
 			padding:0;
 			list-style: none;
 		}
-	
+
 #accounttable {
 	min-width: 400px;
 	width: 100%;
 }
-	
+
 #filters, #hfilters {
-	
+
 	margin-bottom: 15px;
 }
 #filters {
@@ -199,11 +199,11 @@ table {
 		border: 1px solid #ccc;
 		padding: 5px;
 	}
-	
+
 		#filters div p {
 			margin: 0;
 		}
-	
+
 a:link, a:visited { color: #005cdf;}
 .cur a:link, .cur a:visited { color: #666;}
 a:hover, a:active { color: #e60900;}

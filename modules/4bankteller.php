@@ -26,21 +26,21 @@ $modules[$module]['title'][] = 'История по счету';
 $modules[$module]['groups'][] = 'bankteller';
 
 function show_bankteller ($action) {
-	global $modules, $account, $accountlist;	
+	global $modules, $account, $accountlist;
 	$module = $modules['bankteller'];
-	
+
 	$currency = getCurrencyList();
-	
+
 	switch ($action) {
 		case 'bank_give_money':
 			$accountlist = TRUE;
-		
+
 			if ( isset ($_POST['confirm']) ) {
 				if ( transmit ($_POST['account_id'], 'bank', $_POST['n'], $_POST['currency'], 'Выдача денег в банке. Оператор '.$account['id']) ) {
 				echo 'Операция успешно проведена';
 				}
 			}
-				
+
 			if ( isset ($_POST[$action]) ) {
 				echo '
 				<div>
@@ -73,17 +73,17 @@ function show_bankteller ($action) {
 				<input type="submit" name="'.$action.'" value="Выдать наличные">
 			</form>
 			</div>';
-			
+
 			break;
 		case 'bank_take_money':
 			$accountlist = TRUE;
-		
+
 			if ( isset ($_POST['confirm']) ) {
 				if ( transmit ('bank', $_POST['account_id'], $_POST['n'], $_POST['currency'], 'Прием денег в банке. Оператор '.$account['id']) ) {
 				echo 'Операция успешно проведена';
 				}
 			}
-				
+
 			if ( isset ($_POST[$action]) ) {
 				echo '
 				<div>
@@ -116,23 +116,23 @@ function show_bankteller ($action) {
 				<input type="submit" name="'.$action.'" value="Принять наличные">
 			</form>
 			</div>';
-			
+
 			break;
-			
+
 		case 'mass_add_money':
 			$accountlist = TRUE;
-				
+
 			if ( isset ($_POST[$action]) ) {
 				$n = $_POST['n'];
 				$accounts = array();
 				for ($i=0; $i<$n; $i++) {
 					if ($_POST['account_id'.$i]=='') continue;
 					if ($_POST['cash'.$i]=='') continue;
-					
+
 					$comment = '';
 					if ($_POST['comment'.$i]=='') $comment = $_POST['comment'.'0'];
 						else $comment = $_POST['comment'.$i];
-					
+
 					$accounts[] = array (
 						'account_id'	=>	$_POST['account_id'.$i],
 						'cash'			=>	$_POST['cash'.$i],
@@ -140,18 +140,18 @@ function show_bankteller ($action) {
 						'comment'		=>	$comment
 					);
 				}
-				foreach ($accounts as $k=>$info) {					
+				foreach ($accounts as $k=>$info) {
 					if ( $info['cash'] <= 0 ) {
 						echo 'Сумма перевода должна быть неотрицательной; операция прервана';
 						continue;
 					}
-				
+
 					$comment = $info['comment'];
 					$comment.= ' Массовое зачисление. Оператор '.$account['id'];
-					
+
 					(bool) $statebonus = false;
 					if ( @$_POST['statebonus']=='on' ) $statebonus = true;
-					
+
 					if ( transmit ('bank', $info['account_id'], $info['cash'], $info['currency'], $comment, $statebonus) ) {
 						echo 'Операция для '.$info['account_id'].' успешно проведена';
 					}
@@ -167,10 +167,10 @@ function show_bankteller ($action) {
 				<small>тогда, зачисляя правительству зарплату или начисляя бонус за какой-то конкурс нескольким людям, можно заполнить форму с комментарием только один раз</small></p>
 				<form method="post" action="'.$_SERVER["PHP_SELF"].'?action='.$action.'">
 				<table class="form">';
-			
+
 				if (isset($_POST['n'])) $n = $_POST['n']; else $n = 4;
 				for ($i=0; $i<$n; $i++) {
-				echo '		
+				echo '
 					<tr><td>Счет</td><td><input type="text" name="account_id'.$i.'" id="account_id'.$i.'" onfocus="setfocus(\'account_id'.$i.'\')" /></td></tr>
 					<tr><td>Сумма</td><td><input type="text" name="cash'.$i.'" size="9" />
 					<select name="currency'.$i.'">';
@@ -197,28 +197,28 @@ function show_bankteller ($action) {
 				';
 			}
 			break;
-			
+
 		case 'user_account_history':
 			$accountlist = TRUE;
-			
+
 			if ( ( isset ($_POST['account_id']) && $account_id = $_POST['account_id'] ) || ( isset ($_GET['account_id']) && $account_id = $_GET['account_id']  ) ) {
-				
+
 				$income = getMoneyLog( '', $account_id );
 				$outgoing = getMoneyLog( $account_id, '' );
-				
+
 				echo '<h3>Расходы</h3>';
 				print_account_log ( $outgoing['logs'] );
 				echo '<p>Сумма: '.$outgoing['sum'].'</p>';
 				echo '<h3>Доходы</h3>';
-				print_account_log ( $income['logs'] );	
+				print_account_log ( $income['logs'] );
 				echo '<p>Сумма: '.$income['sum'].'</p>';
-				
+
 				echo '<p style="clear: both;"></p><p style="clear: both; margin: 40px 0 0 0;"><i>Другой счет</i></p>';
 			}
-			
+
 			echo '
 			<form method="post" action="'.$_SERVER["PHP_SELF"].'?action='.$action.'">
-			<p style="margin-top: 0">Введите номер банковского счета:<br />			
+			<p style="margin-top: 0">Введите номер банковского счета:<br />
 				<input type="text" name="account_id" id="account_id" />
 				<input type="submit" name="'.$action.'" value="Вывести историю">
 			</p>

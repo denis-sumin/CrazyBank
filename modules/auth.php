@@ -33,15 +33,15 @@ echo '<div id="auth">';
 if ( !empty ($_SESSION['account_id'])  && $action !== $modules[$module]['action'][1] ) {
 	echo 'Вы вошли как '.@$account['name'].' '.@$account['surname'].'<a href="'.$_SERVER["SCRIPT_NAME"].'?action=logout">Выйти</a>';
 }
-else {	
+else {
 	echo '<a href="'.$_SERVER["SCRIPT_NAME"].'?action=login">Войти</a> в систему';
 }
 echo '</div>';
 
 function show_auth ($action) {
-	global $modules;	
+	global $modules;
 	$module = $modules['auth'];
-	
+
 	$changeaction = 1;
 	foreach ($modules['auth']['action'] as $key=>$value) {
 		if ( $action === $value ) { $changeaction = 0; break; }
@@ -80,7 +80,7 @@ function show_auth ($action) {
 				';
 			break;
 		default:
-		
+
 	}
 }
 ?>

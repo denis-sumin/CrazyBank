@@ -16,12 +16,12 @@ if( $g_config['auction_module_enabled'] )
 	$modules[$module]['groups'][] = 'admin';
 
 	function show_auction ($action) {
-		global $modules, $account, $accountlist;	
+		global $modules, $account, $accountlist;
 		$module = $modules['register'];
-		
+
 		switch ($action) {
-			
-			case 'print_cheque':		
+
+			case 'print_cheque':
 				print_cheque();
 				break;
 		}

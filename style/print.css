@@ -19,23 +19,23 @@ body {
 
 #pinstoprint {
 	margin:5px 0 5px 0;
-	
+
 }
 	#pinstoprint .helpnote, #pinstoprint .helpnote * {
 		font-size: 9pt;
 		line-height: 100%;
 	}
-	
+
 	#pinstoprint .pinfo * {
 		font-size: 11pt;
 		line-height: 100%;
 	}
-	
+
 	#pinstoprint .ainfo * {
 		font-size: 14pt;
 		line-height: 100%;
 	}
-	
+
 #chequetoprint {
 	margin:5px 0 5px 0;
 }
@@ -49,13 +49,13 @@ body {
 
 	#chequetoprint .pinfo {
 		padding-left: 60px;
-		
+
 	}
 
 	#chequetoprint .pinfo * {
 		font-size: 11pt;
 		line-height: 110%;
-		
+
 	}
 
 img { border: 0; }

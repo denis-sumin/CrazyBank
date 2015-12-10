@@ -6,14 +6,14 @@ function balance_format ( $balance ) {
 	return $balance;
 }
 
-// Проверяет пару <номер счета:ПИН-код> 
+// Проверяет пару <номер счета:ПИН-код>
 // Возвращает TRUE/FALSE в случае удачного/неудачного выполнения
 // Аргументы: id=номер счета, password=ПИН
 function check_password ($account_id, $password) {
 	mysql_query ("START TRANSACTION;");
 
 	if ( !($id = account2id ($account_id) ) ) return FALSE;
-	
+
 	$q = mysql_query ("SELECT * FROM `accounts` WHERE `id`='$id' AND `blocked`='1';");
 	if( !$q )
 	{
@@ -24,14 +24,14 @@ function check_password ($account_id, $password) {
 		report_error( "Счет ".$account_id." заблокирован. О причинах блокировки счета Вы можете узнать в Правительстве Crazy Week (Аудитория 304)" );
 		return FALSE;
 	}
-	
+
 	$time = 10; $num = 3;
 	$q = mysql_query ("SELECT * FROM `logs_logins`
 			WHERE id='$id' AND
-			`timestamp` > DATE_SUB( now( ) , INTERVAL $time MINUTE ) AND 
+			`timestamp` > DATE_SUB( now( ) , INTERVAL $time MINUTE ) AND
 			`success` != '1' AND
 			`ip` = '$_SERVER[REMOTE_ADDR]'
-			ORDER BY `timestamp`  DESC;			
+			ORDER BY `timestamp`  DESC;
 	");
 	if( mysql_num_rows ($q) >= $num ) {
 		for ($i = 0; $i < $num; $i++) $f = mysql_fetch_array($q);
@@ -41,13 +41,13 @@ function check_password ($account_id, $password) {
 			Блокировка автоматически закончится в ".date ( 'H:i:s', strtotime ($f['timestamp'])+$time*60 ) );
 		return FALSE;
 	}
-	
+
 	$time = 10; $num = 10;
 	$q = mysql_query ("SELECT * FROM `logs_logins`
 			WHERE id='$id' AND
-			`timestamp` > DATE_SUB( now( ) , INTERVAL $time MINUTE ) AND 
+			`timestamp` > DATE_SUB( now( ) , INTERVAL $time MINUTE ) AND
 			`success` != '1'
-			ORDER BY `timestamp`  DESC;			
+			ORDER BY `timestamp`  DESC;
 	");
 	if( mysql_num_rows ($q) >= $num ) {
 		for ($i = 0; $i < $num; $i++) $f = mysql_fetch_array($q);
@@ -60,10 +60,10 @@ function check_password ($account_id, $password) {
 	/*
 	$time = 5; $num = 10;
 	$q = mysql_query ("SELECT * FROM `logs_logins`
-			WHERE `timestamp` > DATE_SUB( now( ) , INTERVAL $time MINUTE ) AND 
+			WHERE `timestamp` > DATE_SUB( now( ) , INTERVAL $time MINUTE ) AND
 			`success` != '1' AND
 			`ip` = '$_SERVER[REMOTE_ADDR]'
-			ORDER BY `timestamp`  DESC;			
+			ORDER BY `timestamp`  DESC;
 	");
 	if( mysql_num_rows ($q) >= $num ) {
 		for ($i = 0; $i < $num; $i++) $f = mysql_fetch_array($q);
@@ -81,63 +81,63 @@ function check_password ($account_id, $password) {
 				report_error( "Счет не найден" );
 				return FALSE;
 			}
-			
+
 			$f = mysql_fetch_array($q);
-	
+
 			if (crypt ( $password, $f['hash'] ) == $f['hash'] ) $success = TRUE;
-			else $success = FALSE;	
+			else $success = FALSE;
 			break;
 		case 'company':
 			$q = mysql_query("SELECT * FROM `company_participators` WHERE oid='$id'");
 			if( mysql_num_rows ($q) == 0 ) report_error( "Счет компании не найден" );
-			
+
 			for ($i=0; $i < mysql_num_rows ($q); $i++) {
 				$f = mysql_fetch_array($q);
 				$user[] = $f['uid'];
 			}
-			
+
 			foreach ($user as $key=>$id) {
 				$q = mysql_query("SELECT * FROM `users` WHERE id='$id'");
 				if( mysql_num_rows ($q) == 0 ) report_error( "Счет не найден" );
 
 				$fu = mysql_fetch_array($q);
-	
+
 				if (crypt ( $password, $fu['hash'] ) == $fu['hash'] ) { $success = $fu['id'];  break; }
 				else $success = FALSE;
-			}			
+			}
 			break;
 
-		case 'state': 
+		case 'state':
 			$q = mysql_query("SELECT * FROM `company_participators` WHERE oid='$id'");
 			if( mysql_num_rows ($q) == 0 ) report_error( "Счет партии не найден" );
-			
+
 			for ($i=0; $i < mysql_num_rows ($q); $i++) {
 				$f = mysql_fetch_array($q);
 				$user[] = $f['uid'];
 			}
-			
+
 			foreach ($user as $key=>$id) {
 				$q = mysql_query("SELECT * FROM `users` WHERE id='$id'");
 				if( mysql_num_rows ($q) == 0 ) report_error( "Счет не найден" );
 
 				$fu = mysql_fetch_array($q);
-	
+
 				if (crypt ( $password, $fu['hash'] ) == $fu['hash'] ) { $success = $fu['id'];  break; }
 				else $success = FALSE;
-			}			
+			}
 			break;
 	}
-	
+
 	if ( !mysql_query("INSERT INTO `logs_logins` (`id`,`ip`,`success`) VALUES ('$id','$_SERVER[REMOTE_ADDR]','$success')") ) {
 		report_error( "Произошла ошибка записи информации в логи. Пожалуйста, попробуйте войти еще раз" );
 		return FALSE;
 	}
-	
+
 	if (!mysql_query ("COMMIT;")) {
 		report_error ('Произошла ошибка во время выполнения запроса. Пожалуйста, попробуйте еще раз');
 		return FALSE;
 	}
-	
+
 	if (!$success) report_error("Неправильный ПИН-код. Поменять ПИН-код можно в Правительстве Crazy Week");
 	return $success;
 }
@@ -159,7 +159,7 @@ function balance ($account_id) {
 function change_balance ($id, $n, $currency='') {
 
 	// mysql_query ("START TRANSACTION;");
-	
+
 	$account = get_account_info (id2account($id));
 	if ( $currency !== '' ) {
 		if ($account['currency'] != $currency) {
@@ -168,24 +168,24 @@ function change_balance ($id, $n, $currency='') {
 			if ($account['currency']!='') $n /= $rates[$account['currency']];
 		}
 	}
-	
+
 	$q = mysql_query("SELECT * FROM `accounts` WHERE `id`='$id'");
 	$f = mysql_fetch_array($q);
-		
-	if ( ($f['balance'] + $n) < 0 ) { 
-		report_error("Недостаточно средств на счете для осуществления операции");		
+
+	if ( ($f['balance'] + $n) < 0 ) {
+		report_error("Недостаточно средств на счете для осуществления операции");
 		return FALSE;
 	}
-	
+
 	$q = mysql_query("
 	UPDATE `accounts` SET `balance` = `balance`+'$n' WHERE `accounts`.`id` = '$id' LIMIT 1 ;
 	");
-	
+
 	if (!$q) {
 		report_error ('Произошла ошибка во время выполнения запроса. Пожалуйста, попробуйте еще раз');
 		return FALSE;
 	}
-	
+
 	return TRUE;
 }
 
@@ -194,10 +194,10 @@ function change_balance ($id, $n, $currency='') {
 // Аргументы: id_from=номер счета отправителя, id_to=номер счета получателя, n=количество единиц
 function transmit ($account_id_from, $account_id_to, $n, $currency, $comment, $statebonus=false) {
 	if ($account_id_from == 'bank') $id_from = 0;
-		else $id_from = account2id ($account_id_from);		
+		else $id_from = account2id ($account_id_from);
 	if ($account_id_to == 'bank') $id_to = 0;
 		else $id_to = account2id ($account_id_to);
-	
+
 	if ($n <= 0) report_error ('Сумма перевода должна быть положительной!');
 
 	mysql_query ("START TRANSACTION;");
@@ -221,7 +221,7 @@ function transmit ($account_id_from, $account_id_to, $n, $currency, $comment, $s
 		}
 	}
 	*/
-	
+
 	if (!mysql_query("
 	INSERT INTO `logs_money` (`id_from`,`id_to`,`ip`,`money`,`currency`,`comment`)
 	VALUES ('$id_from','$id_to','$_SERVER[REMOTE_ADDR]','$n','$currency','".addslashes($comment)."')
@@ -229,12 +229,12 @@ function transmit ($account_id_from, $account_id_to, $n, $currency, $comment, $s
 		report_error("Произошла ошибка записи в логи. Перевод был отменен");
 		return FALSE;
 	}
-	
+
 	if (!mysql_query ("COMMIT;")) {
 		report_error ('Произошла ошибка во время выполнения запроса. Пожалуйста, попробуйте еще раз');
 		return FALSE;
 	}
-	
+
 	return TRUE;
 }
 
@@ -244,26 +244,26 @@ function transmit ($account_id_from, $account_id_to, $n, $currency, $comment, $s
 function report_error($problem) {
 	global $errors, $account;
 	$errors[] = $problem.' '.mysql_error();
-		
+
 	mysql_query ("ROLLBACK;");
-	
-	if (empty($account['id'])) $id = '0'; else $id = $account['id'];		
+
+	if (empty($account['id'])) $id = '0'; else $id = $account['id'];
 	$problemtolog = explode ('<br />', $problem);
-	$problemtolog = trim(strip_tags ($problemtolog[0]));	
+	$problemtolog = trim(strip_tags ($problemtolog[0]));
 	mysql_query ("START TRANSACTION;");
 	mysql_query ("
 	INSERT INTO `logs_errors` (`id` , `error` , `ip`)
 	VALUES ('$id', '$problemtolog', '$_SERVER[REMOTE_ADDR]');");
 	mysql_query ("COMMIT;");
-	
+
 	print_errors(); die();
-	
+
 	return TRUE;
 }
 
 function get_account_info ($account_id) {
 	if ( !($id = account2id ($account_id) ) ) return FALSE;
-	
+
 	switch ( accounttype ($account_id) ) {
 		case 'user':
 			$q = mysql_query("SELECT * FROM `accounts` INNER JOIN `users` ON `accounts`.`id` = `users`.`id` WHERE `users`.`id`='$id'");
@@ -272,7 +272,7 @@ function get_account_info ($account_id) {
 			$f = mysql_fetch_array($q);
 			$account['id'] = $f['id'];
 			$account['account_id'] = $account_id;
-			
+
 			$account['name'] = $f['name'];
 			$account['surname'] = $f['surname'];
 			$account['litgroup'] = $f['litgroup'];
@@ -281,7 +281,7 @@ function get_account_info ($account_id) {
 			$account['blocked'] = $f['blocked'];
 			$account['currency'] = $f['currency'];
 			$account['state'] = $f['state'];
-	
+
 			$q = mysql_query("SELECT * FROM `usersgroup` WHERE id='$id'");
 			for ($i=0; $i<mysql_num_rows($q); $i++) {
 				$f = mysql_fetch_array($q);
@@ -289,62 +289,62 @@ function get_account_info ($account_id) {
 			}
 			$account['group'][] = 'user';
 			$account['group'][] = 'guest';
-	
+
 			$q = mysql_query("SELECT * FROM `company_participators` WHERE uid='$id'");
 			for ($i=0; $i < mysql_num_rows ($q); $i++) {
 				$f = mysql_fetch_array($q);
 				$account['organization'][] = $f['oid'];
 			}
 			break;
-			
+
 		case 'company':
 			$q = mysql_query("SELECT * FROM `accounts` INNER JOIN `companies` ON `accounts`.`id` = `companies`.`id` WHERE `companies`.`id`='$id'");
 			if ( mysql_num_rows($q) == 0 ) { report_error("Счет не найден"); return FALSE; }
-			
+
 			$f = mysql_fetch_array($q);
 			$account['id'] = $f['id'];
 			$account['account_id'] = $account_id;
 			$account['name'] = $f['oname'];
-			
+
 			$account['balance'] = $f['balance'];
 			$account['blocked'] = $f['blocked'];
 			$account['currency'] = $f['currency'];
-			
+
 			$q = mysql_query("SELECT * FROM `company_participators` WHERE oid='$id'");
 			for ($i=0; $i < mysql_num_rows ($q); $i++) {
 				$f = mysql_fetch_array($q);
 				$account['users'][$i] = $f['uid'];
 				$account['user_percent'][$i] = $f['percentage'];
 			}
-			
+
 			$account['group'][] = 'company';
-			
+
 			break;
-		case 'state': 
+		case 'state':
 			$q = mysql_query("SELECT * FROM `accounts` INNER JOIN `companies` ON `accounts`.`id` = `companies`.`id` WHERE `companies`.`id`='$id'");
 			if ( mysql_num_rows($q) == 0 ) { report_error("Счет не найден"); return FALSE; }
-			
+
 			$f = mysql_fetch_array($q);
 			$account['id'] = $f['id'];
 			$account['account_id'] = $account_id;
 			$account['name'] = $f['oname'];
-			
+
 			$account['balance'] = $f['balance'];
 			$account['blocked'] = $f['blocked'];
 			$account['currency'] = $f['currency'];
-			
+
 			$q = mysql_query("SELECT * FROM `company_participators` WHERE oid='$id'");
 			for ($i=0; $i < mysql_num_rows ($q); $i++) {
 				$f = mysql_fetch_array($q);
 				$account['users'][$i] = $f['uid'];
 				$account['user_percent'][$i] = $f['percentage'];
 			}
-			
+
 			$account['group'][] = 'company';
-			
-			break;      
+
+			break;
     }
-	
+
 	return $account;
 }
 
@@ -365,7 +365,7 @@ function id2account ($id) {
 }
 
 function account2id ($account) {
-	if ( strlen($account) <3 || strlen($account) > 4 || !preg_match("/^[0-9]+$/i",$account) || (strlen($account) == 4 && $account<1000)) { 
+	if ( strlen($account) <3 || strlen($account) > 4 || !preg_match("/^[0-9]+$/i",$account) || (strlen($account) == 4 && $account<1000)) {
 		report_error ("
 			Некорректный номер счета $account<br />\n
 			Номер счета пользователя состоит из трех цифр без пробелов, а номер счета организации &mdash; из четырех цифр");
@@ -381,13 +381,13 @@ function accounttype ($account_id) {
 			$type = 'user';
 			break;
 		case 4:
-      $q = mysql_query("SELECT * FROM `states` WHERE `account_id`='$account_id'");  
+      $q = mysql_query("SELECT * FROM `states` WHERE `account_id`='$account_id'");
       if(mysql_num_rows($q) > 0)
-      {                  
+      {
 			 $type = 'state';
-      }  
+      }
       else
-      {                            
+      {
 			 $type = 'company';
       }
 			break;
@@ -398,7 +398,7 @@ function accounttype ($account_id) {
 function formAccountArray ( $type, $sortField='id', $sortDir='ASC' ) {
 	$arg = func_get_args();
 	$array = array();
-	
+
 	$currency = getCurrencyList();
 	$rates = getRates();
 
@@ -406,9 +406,9 @@ function formAccountArray ( $type, $sortField='id', $sortDir='ASC' ) {
 		case 'user':
 			if ( $sortField == 'balance' ) $sortTable = 'accounts';
 			else $sortTable = 'users';
-		
+
 			$q = mysql_query("SELECT * FROM `accounts` INNER JOIN `users` ON `accounts`.`id` = `users`.`id` WHERE  `surname` LIKE '$arg[3]%' AND `litgroup` LIKE '$arg[4]%' ORDER BY  `$sortTable`.`$sortField` $sortDir, `users`.`surname` ASC;");
-									
+
 			for ($i=0; $i < mysql_num_rows ($q); $i++) {
 				$f = mysql_fetch_array($q);
 				$array[$i]['id'] = id2account ( $f['id'] );
@@ -420,47 +420,47 @@ function formAccountArray ( $type, $sortField='id', $sortDir='ASC' ) {
 				$array[$i]['blocked'] = $f['blocked'];
 				$array[$i]['balance'] = balance_format ($f['balance']*@$rates[$f['currency']]);
 			}
-			break;    
+			break;
 		case 'company':
 			if ( $sortField == 'balance' ) $sortTable = 'accounts';
 			else $sortTable = 'companies';
-			
+
 			$q = mysql_query("SELECT * FROM `accounts` INNER JOIN `companies` ON `accounts`.`id` = `companies`.`id` ORDER BY `$sortTable`.`$sortField` $sortDir, `companies`.`oname` ASC;");
-			
-      //Костылище  
+
+      //Костылище
       //$states_num = 0;
 			for ($i=0; $i < mysql_num_rows ($q)/* - $states_num*/; $i++) {
-				$f = mysql_fetch_array($q); 
-        //$test = $f['id'];  
+				$f = mysql_fetch_array($q);
+        //$test = $f['id'];
         //echo $test;
         //$q1=mysql_query("SELECT * FROM `states` WHERE `account_id` = `$test`");
         //echo mysql_fetch_array($q1);
-        //if(mysql_num_rows($q1) !== 0) 
-        //{        
+        //if(mysql_num_rows($q1) !== 0)
+        //{
         //  $i--;
         //  $states_num++;
         //  continue;
         //}
 				$array[$i]['id'] = id2account ( $f['id'] );
 				$array[$i]['oname'] = $f['oname'];
-				$array[$i]['balance'] = balance_format ($f['balance']*@$rates[$f['currency']]);			
+				$array[$i]['balance'] = balance_format ($f['balance']*@$rates[$f['currency']]);
 			}
-			break;  
+			break;
 		case 'state':
 			if ( $sortField == 'balance' ) $sortTable = 'accounts';
 			else $sortTable = 'companies';
-			
+
 			$q = mysql_query("SELECT * FROM `accounts` INNER JOIN `companies` ON `accounts`.`id` = `companies`.`id` ORDER BY `$sortTable`.`$sortField` $sortDir, `companies`.`oname` ASC;");
-			
+
 			for ($i=0; $i < mysql_num_rows ($q); $i++) {
 				$f = mysql_fetch_array($q);
 				$array[$i]['id'] = id2account ( $f['id'] );
 				$array[$i]['oname'] = $f['oname'];
-				$array[$i]['balance'] = balance_format ($f['balance']*@$rates[$f['currency']]);			
+				$array[$i]['balance'] = balance_format ($f['balance']*@$rates[$f['currency']]);
 			}
-			break;  
+			break;
     }
-	
+
 	return $array;
 }
 
@@ -471,7 +471,7 @@ function getGroupsList () {
 	{
 		return FALSE;
 	}
-	$list = array(); 
+	$list = array();
 	for ($i=0; $i < mysql_num_rows ($q); $i++)
 	{
 		$f = mysql_fetch_array($q);
@@ -563,7 +563,7 @@ function getGoodsList( $account )
 	{
 		$q = mysql_query ("SELECT * FROM `goods`");
 	}
-	
+
 	if( !$q )
 	{
 		return FALSE;
@@ -595,7 +595,7 @@ function getGoodsCategories()
 
 function accountIsActive ( $account_id ) {
 	if ( !($id = account2id ($account_id) ) ) return FALSE;
-	
+
 	$q = mysql_query ("SELECT * FROM `accounts` WHERE `id`='$id' AND `blocked`!='1'");
 	if (mysql_num_rows($q) == 1) return TRUE;
 	 else return FALSE;
@@ -605,19 +605,19 @@ function accountIsActive ( $account_id ) {
 
 function pay_salary ($account_id, $n, $pin) {
 	global $account;
-	
+
 	if ( !($id = account2id ($account_id) ) ) return FALSE;
 	if ($n>$account['balance']) report_error('Невозможно выдать зарплату: недостаточно средств');
-	
+
 	if (!($user_id = check_password($account_id, $pin))) return FALSE;
-	
-	
+
+
 	$boss = TRUE;
-	
+
 	foreach ($account['users'] as $key=>$uid) {
 		if ($user_id == $uid) $user_percent = $account['user_percent'][$key];
 	}
-	
+
 	foreach ($account['users'] as $key=>$uid) {
 		if ($user_id == $uid) continue;
 		if ($account['user_percent'][$key]>$user_percent) { $boss = FALSE; report_error('Невозможно выдать зарплату: Вы не руководитель компании'); }
@@ -626,13 +626,13 @@ function pay_salary ($account_id, $n, $pin) {
 		mysql_query ("START TRANSACTION;");
 		$state_prev = '';
 		foreach ($account['users'] as $key=>$uid) {
-			
+
 			if ($account['user_percent'][$key]==0) continue;
-			
-			$id_from = account2id ($account['id']);		
+
+			$id_from = account2id ($account['id']);
 			$id_to = $uid;
 			$currency = $account['currency'];
-		
+
 			$un = $account['user_percent'][$key]*0.01*$n;
 			if ($un <= 0) report_error ('Сумма перевода должна быть положительной!');
 
@@ -647,20 +647,20 @@ function pay_salary ($account_id, $n, $pin) {
 				report_error("Произошла ошибка во время перевода денег. Перевод был отменен. Попробуйте еще раз");
 				return FALSE;
 			}
-			
+
 			$user = get_account_info( id2account($uid) );
-			
-			if ( $state_prev == '' ) $statebonus = true;			
+
+			if ( $state_prev == '' ) $statebonus = true;
 			else if ( $state_prev != $user['state'] ) $statebonus = false;
 			$state_prev = $user['state'];
-			
+
 			if (!mysql_query("
 			INSERT INTO `logs_money` (`id_from`,`id_to`,`ip`,`money`,`currency`,`comment`)
 			VALUES ('$id_from','$id_to','$_SERVER[REMOTE_ADDR]','$un','$currency','Зарплата')
 			") ) {
 				report_error("Произошла ошибка записи в логи. Перевод был отменен");
 				return FALSE;
-			}			
+			}
 		}
 		/*
 		if ( $statebonus ) {
@@ -680,12 +680,12 @@ function pay_salary ($account_id, $n, $pin) {
 			report_error ('Произошла ошибка во время выполнения запроса. Пожалуйста, попробуйте еще раз');
 			return FALSE;
 		}
-		
+
 		if (!mysql_query ("COMMIT;")) {
 			report_error ('Произошла ошибка во время выполнения запроса. Пожалуйста, попробуйте еще раз');
 			return FALSE;
 		}
-		
+
 		return TRUE;
 	}
 	return FALSE;
@@ -709,19 +709,19 @@ function hashState ( $name, $surname ) {
 
 function addUser ( $name, $surname, $litgroup, $photo_url, $pin, $balance, $group ) {
 	global $account;
-	
+
 	$arg = func_get_args();
-	
+
 	foreach ( $arg as $key=>$value ) {
 		if ( $value == '' ) {
 			report_error ("Форма заполнена не полностью");
 			return FALSE;
 		}
 	}
-	
+
 	if ( isset ($arg[7]) && $arg[7]=='mass' ) $blocked = 1;
 		else $blocked = 0;
-		
+
 	foreach (getCurrencyList() as $bankname=>$cur_name) {
 		if ( isset ($arg[7]) && $arg[7]==$bankname ) {
 			$currency = $arg[7];
@@ -729,19 +729,19 @@ function addUser ( $name, $surname, $litgroup, $photo_url, $pin, $balance, $grou
 		}
 		else $currency = '';
 	}
-	
+
 	$q = mysql_query ("SELECT * FROM `users` WHERE `name` = '$name' AND `surname` = '$surname' AND `litgroup` = '$litgroup';");
 	if ( mysql_num_rows ($q) > 0 ) {
 		if ( isset ($arg[7]) && $arg[7]=='mass' ) return FALSE;
 		else report_error ("Пользователь с такими именем, фамилией и группой уже существует");
 	}
-	
+
 	mysql_query ("START TRANSACTION;");
-	
+
 	$q = mysql_query ("SELECT MAX(`id`) FROM `users`");
 	$f = mysql_fetch_array ($q);
 	$id = $f['MAX(`id`)'] + 1;
-	
+
 	if ( !mysql_query ("
 	INSERT INTO `accounts` (`id`, `balance`, `blocked`, `currency`, `TimeModify`)
 	VALUES ('$id', '$balance', '$blocked', '$currency', NOW() )") ) {
@@ -755,38 +755,38 @@ function addUser ( $name, $surname, $litgroup, $photo_url, $pin, $balance, $grou
 		report_error ("Произошла ошибка создания пользователя");
 		return FALSE;
 	}
-	
+
 	if ( !updateUsersGroup ( $id, $group ) ) {
 		mysql_query ("ROLLBACK;");
 		return FALSE;
 	}
-	
+
 	if ( !mysql_query ("
 	INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
 	VALUES ($account[id], $id, 'Создание пользователя', '$_SERVER[REMOTE_ADDR]');") ) {
 		report_error ("Произошла ошибка записи в логи. Пользователь не был добавлен");
 		return FALSE;
 	}
-	
+
 	mysql_query ("COMMIT;");
-	
+
 	return id2account ($id);
 }
 
 function editUser ( $account_id, $name, $surname, $litgroup, $photo_url, $group, $state ) {
 	global $account;
-	
+
 	$arg = func_get_args();
-	
+
 	foreach ( $arg as $key=>$value ) {
 		if ( $value == '' ) {
 			report_error ("Форма заполнена не полностью");
 			return FALSE;
 		}
 	}
-	
+
 	$id = account2id ($account_id);
-	
+
 	$q = mysql_query ("SELECT * FROM `users` WHERE `name` = '$name' AND `surname` = '$surname' AND `litgroup` = '$litgroup';");
 	for ($i=0; $i<mysql_num_rows($q); $i++) {
 		$f = mysql_fetch_array($q);
@@ -796,39 +796,39 @@ function editUser ( $account_id, $name, $surname, $litgroup, $photo_url, $group,
 			return FALSE;
 		}
 	}
-	
+
 	$q = mysql_query ("SELECT * FROM `users` WHERE `id` = '$id'");
 	$old = mysql_fetch_array($q);
-	
+
 	mysql_query ("START TRANSACTION;");
-	
+
 	if ( !mysql_query ("
 	UPDATE `users` SET `name` = '$name', `surname` = '$surname', `litgroup` = '$litgroup', `photo_url` = '$photo_url', `state` = '$state'
 	WHERE `id` = '$id' LIMIT 1 ;") ) {
-		report_error ("Произошла ошибка изменения пользователя"); 
+		report_error ("Произошла ошибка изменения пользователя");
 		mysql_query ("ROLLBACK;");
 		return FALSE;
 	}
-	
+
 	if ( !updateUsersGroup ( $id, $group ) ) {
 		mysql_query ("ROLLBACK;");
 		return FALSE;
 	}
-	
+
 	$log = 'Редактирование пользователя '.$id.'. Старые значения: name:'.$old['name'].' surname:'.$old['surname'].' litgroup:'.$old['litgroup'].', photo_url:'.$old['photo_url'].' group:';
 	foreach ($group as $bankgroup) {
 		$log .= $bankgroup.',';
 	}
-	
+
 	if ( !mysql_query ("
 	INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
 	VALUES ('$account[id]', '$id', '$log', '$_SERVER[REMOTE_ADDR]');") ) {
 		report_error ("Произошла ошибка записи в логи. Пользователь не был добавлен");
 		return FALSE;
 	}
-	
+
 	mysql_query ("COMMIT;");
-	
+
 	return TRUE;
 }
 
@@ -836,133 +836,133 @@ function editUser ( $account_id, $name, $surname, $litgroup, $photo_url, $group,
 function deleteUser ($account_id)
 {
 	global $account;
-	
+
 	if ( $account_id == '' )
 	{
 		report_error ("Вы не ввели номер пользователя");
 		return FALSE;
 	}
-	
+
 	$id = account2id ($account_id);
-	
+
 	if(!mysql_query ("SELECT * FROM `users` WHERE `id` = '$id';"))
-	{  
+	{
 		report_error ("Пользователь с такими номером не существует");
 		return FALSE;
 	}
-	    
-  switch(accounttype($account_id)){             
+
+  switch(accounttype($account_id)){
     case 'user':
       if(accounttype($account_id == 'user')) {
 	     $q = mysql_query ("SELECT * FROM `users` WHERE `id` = '$id';");
-	     $oldInfo = mysql_fetch_array($q);    
-         $w = mysql_query ("SELECT * FROM `usersgroup` WHERE `id` = '$id';"); 
+	     $oldInfo = mysql_fetch_array($q);
+         $w = mysql_query ("SELECT * FROM `usersgroup` WHERE `id` = '$id';");
       }
       break;
-    case 'company':            
+    case 'company':
 	    $q = mysql_query ("SELECT * FROM `companies` WHERE `id` = '$id';");
 	    $oldInfo = mysql_fetch_array($q);
-      break;     
-    case 'state':             
+      break;
+    case 'state':
 	    $q = mysql_query ("SELECT * FROM `states` WHERE `account_id` = '$id';");
 	    $oldInfo = mysql_fetch_array($q);
-      break;    
+      break;
   }
-    
-    
-	
+
+
+
 	mysql_query ("START TRANSACTION;");
-	
+
 	if ( !mysql_query ("DELETE FROM `accounts` WHERE `accounts`.`id` = '$account_id' LIMIT 1;") ) {
-		report_error ("Произошла ошибка удаления аккаунта банка"); 
+		report_error ("Произошла ошибка удаления аккаунта банка");
 		mysql_query ("ROLLBACK;");
 		return FALSE;
-	}  
+	}
 	if ( !mysql_query ("DELETE FROM `users` WHERE `users`.`id` = '$id' LIMIT 1;") ) {
-		report_error ("Произошла ошибка удаления пользователя"); 
+		report_error ("Произошла ошибка удаления пользователя");
 		mysql_query ("ROLLBACK;");
 		return FALSE;
 	}
-	  
+
 	if ( !mysql_query ("DELETE FROM `usersgroup` WHERE `usersgroup`.`id` = '$id';") ) {
-		report_error ("Произошла ошибка удаления групп пользователя"); 
+		report_error ("Произошла ошибка удаления групп пользователя");
 		mysql_query ("ROLLBACK;");
 		return FALSE;
 	}
-  
+
   if(accounttype($account_id) == 'company' || accounttype($account_id) == 'state') {
     if ( !mysql_query ("DELETE FROM `companies` WHERE `id` = '$id';") ) {
-		  report_error ("Произошла ошибка удаления записи о предприятии"); 
+		  report_error ("Произошла ошибка удаления записи о предприятии");
 		  mysql_query ("ROLLBACK;");
 		  return FALSE;
 	  }
   }
   if(accounttype($account_id) == 'state')
-  {    
+  {
     if ( !mysql_query ("DELETE FROM `states` WHERE `account_id` = '$id';") ) {
-		  report_error ("Произошла ошибка удаления записи о партии"); 
+		  report_error ("Произошла ошибка удаления записи о партии");
 		  mysql_query ("ROLLBACK;");
 		  return FALSE;
 	  }
-  } 
-	  
-  switch(accounttype($account_id)){             
+  }
+
+  switch(accounttype($account_id)){
     case 'user':
 	   $log = 'Удаление пользователя '.$id.'. Параметры аккаунта: name:'.$oldInfo['name'].' surname:'.$oldInfo['surname'].' litgroup:'.$oldInfo['litgroup'].', photo_url:'.$oldInfo['photo_url'].' group:';
-	
+
       for ($i=0; $i<mysql_num_rows($w); $i++) {
-	     $oldGroups = mysql_fetch_array($w); 
+	     $oldGroups = mysql_fetch_array($w);
 	     $log .= $oldGroups["bankgroup"].',';
       }
       break;
-      
+
     case 'company':
       $log = 'Удаление компании '.$id.'. Параметры аккаунта: name:'.$oldInfo['oname'].' balance_all:'.$oldInfo['balance_all'];
       break;
-   
-    case 'state':  
+
+    case 'state':
       $log = 'Удаление партии '.$id.'. Параметры аккаунта: name:'.$oldInfo['name '].' bankname:'.$oldInfo['bankname'];
       break;
   }
-	
+
 	if ( !mysql_query ("
 	INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
 	VALUES ('$account[id]', '$id', '$log', '$_SERVER[REMOTE_ADDR]');") ) {
 		report_error ("Произошла ошибка записи в логи. Пользователь не был удаен");
 		return FALSE;
 	}
-	
+
 	mysql_query ("COMMIT;");
-	
+
 	return TRUE;
 }
 
 
 function updateUsersGroup ( $id, $group ) {
 	mysql_query ("START TRANSACTION;");
-	
+
 	if ( !mysql_query ("DELETE FROM `usersgroup` WHERE `id`='$id';") ) {
 		report_error ("Произошла ошибка обновления групп пользователя");
 		return FALSE;
 	}
-	
+
 	foreach ($group as $bankgroup) {
 		if (!mysql_query ("
 			INSERT INTO `usersgroup` (`id` , `bankgroup`)
 			VALUES ('$id', '$bankgroup');") ) {
-			
+
 			report_error ("Произошла ошибка обновления групп пользователя");
 			return FALSE;
 		}
 	}
-	
+
 	mysql_query ("COMMIT;");
 	return TRUE;
 }
 
 function addCompany ( $name, $currency ) {
 	global $account;
-	
+
 	$arg = func_get_args();
 	foreach ( $arg as $key=>$value ) {
 		if ( $value == '' ) {
@@ -970,17 +970,17 @@ function addCompany ( $name, $currency ) {
 			return FALSE;
 		}
 	}
-	
+
 	$q = mysql_query ("SELECT * FROM `companies` WHERE `oname` = '$name';");
 	if ( mysql_num_rows ($q) > 0 ) {
 		report_error ("Компания с такими названием уже существует");
 		return FALSE;
 	}
-	
+
 	$q = mysql_query ("SELECT MAX(`id`) FROM `companies`");
 	$f = mysql_fetch_array ($q);
 	if ( ($id = $f['MAX(`id`)'] + 1) == 1 ) $id = 1001;
-	
+
 	if ( !mysql_query ("
 	INSERT INTO `accounts` (`id`, `currency`, `TimeModify`)
 	VALUES ('$id', '$currency', NOW() )") ) {
@@ -990,19 +990,19 @@ function addCompany ( $name, $currency ) {
 	if ( !mysql_query ("
 	INSERT INTO `companies` (`id`, `oname`)
 	VALUES ('$id', '$name')") ) {
-		report_error ("Произошла ошибка создания пользователя"); 
+		report_error ("Произошла ошибка создания пользователя");
 		mysql_query ("DELETE FROM `accounts` WHERE `accounts`.`id` = $id LIMIT 1");
 		return FALSE;
 	}
-	
+
 	mysql_query ("INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
 	VALUES ($account[id], $id, 'Создание компании', '$_SERVER[REMOTE_ADDR]');");
-	
+
 	return id2account ($id);
-}   
+}
 function addState ( $name, $currency ) {
 	global $account;
-	
+
 	$arg = func_get_args();
 	foreach ( $arg as $key=>$value ) {
 		if ( $value == '' ) {
@@ -1010,17 +1010,17 @@ function addState ( $name, $currency ) {
 			return FALSE;
 		}
 	}
-	
+
 	$q = mysql_query ("SELECT * FROM `companies` WHERE `oname` = '$name';");
 	if ( mysql_num_rows ($q) > 0 ) {
 		report_error ("Партия с такими названием уже существует");
 		return FALSE;
 	}
-	
+
 	$q = mysql_query ("SELECT MAX(`id`) FROM `companies`");
 	$f = mysql_fetch_array ($q);
 	if ( ($id = $f['MAX(`id`)'] + 1) == 1 ) $id = 1001;
-	
+
 	if ( !mysql_query ("
 	INSERT INTO `accounts` (`id`, `currency`, `TimeModify`)
 	VALUES ('$id', '$currency', NOW() )") ) {
@@ -1030,22 +1030,22 @@ function addState ( $name, $currency ) {
 	if ( !mysql_query ("
 	INSERT INTO `companies` (`id`, `oname`)
 	VALUES ('$id', '$name')") ) {
-		report_error ("Произошла ошибка создания пользователя"); 
+		report_error ("Произошла ошибка создания пользователя");
 		mysql_query ("DELETE FROM `accounts` WHERE `accounts`.`id` = $id LIMIT 1");
 		return FALSE;
 	}
   if( !mysql_query ("
 	INSERT INTO `states` (`name`, `bankname`, `account_id`)
 	VALUES ('$name', 'state$id', '$id')")) {
-		report_error ("Произошла ошибка создания партии"); 
+		report_error ("Произошла ошибка создания партии");
 		mysql_query ("DELETE FROM `accounts` WHERE `accounts`.`id` = $id LIMIT 1");
 		mysql_query ("DELETE FROM `companies` WHERE `companies`.`id` = $id LIMIT 1");
 		return FALSE;
 	}
-	
+
 	mysql_query ("INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
 	VALUES ($account[id], $id, 'Создание партий', '$_SERVER[REMOTE_ADDR]');");
-	
+
 	return id2account ($id);
 }
 
@@ -1066,7 +1066,7 @@ function addGoodsItem( $company_id, $title, $description, $category_id, $price, 
 
 	$title = mysql_real_escape_string( $title );
 	$description = mysql_real_escape_string( $description );
-	
+
 	$category_id_exists = false;
 	foreach ( getGoodsCategories() as $key => $value )
 	{
@@ -1104,7 +1104,7 @@ function saveGoodsItem( $id, $company_id, $title, $description, $category_id, $p
 
 	$title = mysql_real_escape_string( $title );
 	$description = mysql_real_escape_string( $description );
-	
+
 	$category_id_exists = false;
 	foreach ( getGoodsCategories() as $key => $value )
 	{
@@ -1157,24 +1157,24 @@ function addGoodsCategory( $name )
 
 function updateCompanyUsers ( $account_id, $companyusers ) {
 	$id = account2id ($account_id);
-	
+
 	mysql_query ("START TRANSACTION;");
-	
+
 	if ( !mysql_query ("DELETE FROM `company_participators` WHERE `oid`='$id';") ) {
 		report_error ("Произошла ошибка обновления списка работающих в компании");
 		return FALSE;
 	}
-	
+
 	foreach ($companyusers as $user_id=>$percent) {
 		if (!mysql_query ("
 			INSERT INTO `company_participators` (`oid`, `uid`, `percentage`)
 			VALUES ('$id', '$user_id', '$percent');") ) {
-			
+
 			report_error ("Произошла ошибка обновления списка работающих в компании");
 			return FALSE;
 		}
 	}
-	
+
 	mysql_query ("COMMIT;");
 	return TRUE;
 }
@@ -1192,7 +1192,7 @@ function setBlockFlag ( $account_id, $value ) {
 
 	$id = account2id ( $account_id );
 	if ( !mysql_query ("UPDATE `accounts` SET `blocked` ='$value' WHERE `id` =$id LIMIT 1 ;") ) {
-		report_error ("Произошла ошибка изменения счета в БД"); 
+		report_error ("Произошла ошибка изменения счета в БД");
 		return FALSE;
 	}
 	mysql_query ("INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
@@ -1206,36 +1206,36 @@ function updatePin ( $account_id, $pin ) {
 	$id = account2id ($account_id);
 	$hash = crypt ($pin);
 	if ( !mysql_query ("UPDATE `users` SET `hash` ='$hash' WHERE `id` =$id LIMIT 1 ;") ) {
-		report_error ("Произошла ошибка изменения счета пользователя в БД"); 
+		report_error ("Произошла ошибка изменения счета пользователя в БД");
 		return FALSE;
 	}
-	
+
 	mysql_query ("INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
 	VALUES ($account[id], $id, 'Сброс ПИНа', '$_SERVER[REMOTE_ADDR]');");
-	
+
 	return TRUE;
 }
 
 function activate ( $account_id ) {
 	global $account;
-	
+
 	$account_to_activate = get_account_info($account_id);
-		
+
 	if ( $account_to_activate['blocked']!=1 || $account_to_activate['balance'] != 0 )
 		report_error ("Аккаунт не нуждается в активации");
 
 	$id = account2id ($account_id);
-	
+
 	if (
-		!mysql_query ("UPDATE `accounts` SET `blocked` ='0', `balance`='0' WHERE `id` =$id LIMIT 1 ;") || 
+		!mysql_query ("UPDATE `accounts` SET `blocked` ='0', `balance`='0' WHERE `id` =$id LIMIT 1 ;") ||
 		!transmit ( 0, $account_id, start_balance, '', 'Зачисление стартовой суммы' )
 		) {
-		report_error ("Произошла ошибка изменения счета пользователя в БД"); 
+		report_error ("Произошла ошибка изменения счета пользователя в БД");
 		return FALSE;
 	}
 	mysql_query ("INSERT INTO `logs_admin` (`admin_id`, `account_id`, `action`, `ip`)
 	VALUES ($account[id], $id, 'Активация', '$_SERVER[REMOTE_ADDR]');");
-	
+
 	return TRUE;
 }
 
@@ -1265,43 +1265,43 @@ function import_people_lit_msu_ru () {
 
 function reload_rates() {
 	$q = mysql_query ("SELECT SUM(`balance`) FROM `accounts` WHERE `blocked` != '1' AND `currency` = 'piastre';");
-	$f = mysql_fetch_array($q);	
+	$f = mysql_fetch_array($q);
 	$piastre = $f['SUM(`balance`)'];
 	$q = mysql_query ("SELECT SUM(`balance`) FROM `accounts` WHERE `blocked` != '1' AND `currency` = 'boubloon';");
 	$f = mysql_fetch_array($q);
 	$boubloon = $f['SUM(`balance`)'];
-	
+
 	$rel = $piastre/$boubloon;
-	
+
 	if ($rel>1) { $kp=+0.001; $kb=-0.001; }
 	else  { $kp=-0.001; $kb=+0.001; }
 	(float) $p = 1; (float) $b = 1;
-	while (1) {	
+	while (1) {
 		if ($rel>1) { if ( ($p+$kp)/($rel)/($b+$kb) > 1.0) break; }
-		else { if ( ($p+$kp)/($rel)/($b+$kb) < 1.0) break; }	
+		else { if ( ($p+$kp)/($rel)/($b+$kb) < 1.0) break; }
 		$p+=$kp;
-		$b+=$kb;	
+		$b+=$kb;
 	}
-	
+
 	mysql_query ("UPDATE `currency` SET `rate` = '$b' WHERE `bankname` = 'boubloon' LIMIT 1 ;");
 	mysql_query ("UPDATE `currency` SET `rate` = '$p' WHERE `bankname` = 'piastre' LIMIT 1 ;");
-	
+
 	return TRUE;
 }
 
 function increase_balances() {
 	mysql_query ("START TRANSACTION;");
 	$q = mysql_query ("SELECT * FROM `accounts` WHERE `id` > 0 AND `id`< 1000 AND `blocked` != '1' AND `balance` > 0;");
-		
+
 	for ($i=0; $i<mysql_num_rows($q); $i++) {
 		$f = mysql_fetch_array($q);
-		
+
 		$activity = mysql_query ("
 		SELECT *  FROM `logs_money` WHERE (`id_to` = '".$f['id']."') AND `timestamp`>DATE_SUB(NOW(), INTERVAL 1 DAY) AND `ip`!='bank'");
 		if (mysql_num_rows($activity)==0) continue;
-		
+
 		if ( !mysql_query ("UPDATE `accounts` SET `balance`=`balance`+`balance`*0.05 WHERE `id` = '".$f['id']."' LIMIT 1;") ) report_error ("Не удалось изменить счета участников игры");
-		
+
 		if ( !mysql_query("
 		INSERT INTO `logs_money` (`id_from`, `id_to`,`ip`,`money`,`currency`,`comment`)
 		VALUES ('0', '".$f['id']."','bank','".($f['balance']*0.05)."','".$f['currency']."','Премия за активность')
@@ -1318,11 +1318,11 @@ function increase_state_balances() {
 
 	mysql_query ("START TRANSACTION;");
 	$q = mysql_query ("SELECT * FROM `accounts` WHERE `id` > 0 AND `id`< 1000 AND `blocked` != '1' AND `balance` > 0;");
-	
+
 	for ($i=0; $i<mysql_num_rows($q); $i++) {
 		$f = mysql_fetch_array($q);
 		unset($diff); unset($f_salaries); unset($f_income); unset($f_outgoing);
-		
+
 		$cur_user = get_account_info(id2account($f['id']));
 		//$state_increase[$cur_user['state']] += 50;
 		/*
@@ -1334,31 +1334,31 @@ function increase_state_balances() {
 		*/
 		$income = mysql_query ("
 		SELECT sum(`money`)  FROM `logs_money` WHERE (`id_to` = '".$f['id']."') AND `timestamp`>DATE_SUB(NOW(), INTERVAL 1 DAY) AND `ip`!='bank'");
-		$f_income = mysql_fetch_array($income);		
+		$f_income = mysql_fetch_array($income);
 		if ($f_income['sum(`money`)']==null) continue;
-		
+
 		$outgoing = mysql_query ("
 		SELECT sum(`money`)  FROM `logs_money` WHERE (`id_from` = '".$f['id']."') AND `timestamp`>DATE_SUB(NOW(), INTERVAL 1 DAY) AND `ip`!='bank'");
-		$f_outgoing = mysql_fetch_array($outgoing);		
+		$f_outgoing = mysql_fetch_array($outgoing);
 		if ($f_outgoing['sum(`money`)']==null) continue;
-		
+
 		if ( ( $diff = ($f_income['sum(`money`)'] - $f_outgoing['sum(`money`)']) ) > 0 ) {
 			$state_increase[$cur_user['state']] += 0.1*$diff;
 		}
 	}
-	
+
 	foreach ( $state_accounts as $key=>$value )
 		transmit (0, $value, $state_increase[$key], '', 'Премия государства в конце игрового дня');
-	
+
 	mysql_query ("COMMIT;");
 	return TRUE;
 }
 
-function collect_taxes() {	
-	$state_accounts = getStatesAccounts();	
+function collect_taxes() {
+	$state_accounts = getStatesAccounts();
 
 	mysql_query ("START TRANSACTION;");
-	
+
 	// налоги для компаний
 	//$tax = 0.05; //5% от счета
 	$account_id_to = $state_accounts['state1027'];
@@ -1367,33 +1367,33 @@ function collect_taxes() {
 		if (mysql_num_rows($q)!==0) continue;
 		$accountlist[]=$account['id'];
 		$currency[]=$account['currency'];
-  }   
+  }
   if(isset($accountlist))
-  {       
-	 foreach ( $accountlist as $key=>$id ) {  
+  {
+	 foreach ( $accountlist as $key=>$id ) {
    //print_r($accountlist);
     //echo $accountlist;
-	  $account_id_from = id2account($id); 
+	  $account_id_from = id2account($id);
     $q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '$id'");
-    $f = mysql_fetch_array($q);      
-    //echo ((int)$f['balance'] / 100 * 5);  
-    $tax = ((int)$f['balance'] / 100 * 5);  
-    //echo round($f['balance'])/1;   
+    $f = mysql_fetch_array($q);
+    //echo ((int)$f['balance'] / 100 * 5);
+    $tax = ((int)$f['balance'] / 100 * 5);
+    //echo round($f['balance'])/1;
     //echo account2id($account_id_from);
 	  if (!transmit ($account_id_from, $account_id_to, $tax, $currency[$key], 'Налог государства')) {
 		 mysql_query ("ROLLBACK;");
 		 return FALSE;
 	  }
-   } 
+   }
 	}
 	unset ($accountlist);
-     
+
 	// налоги для пользователей
 	$tax = 5; //5 Ерошек
 	$account_id_to = $state_accounts['state1027'];
 	foreach ( formAccountArray ('user') as $account ){
 		$q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '".$account['id']."' AND `balance` < $tax");
-		if (mysql_num_rows($q)!==0) continue;   
+		if (mysql_num_rows($q)!==0) continue;
 		$q = mysql_query("SELECT * FROM  `company_participators` WHERE  `uid` = '".$account['id']."'");
 		if (mysql_num_rows($q)==0) {
 		  $accountlist[]=$account['id'];
@@ -1407,16 +1407,16 @@ function collect_taxes() {
 			return FALSE;
 		}
 	}
-	
+
 	mysql_query ("COMMIT;");
 	return TRUE;
-}  
+}
 
-function distribute_state_balances() {	
-	$state_accounts = getStatesAccounts();	
+function distribute_state_balances() {
+	$state_accounts = getStatesAccounts();
 
 	mysql_query ("START TRANSACTION;");
-	
+
 	// распределение для rightwing
 	$infium = 500; //Нижняя граница, с которой начинают начисляться деньги
   $active_accounts_count = 0;//Количество аккаунтов, на которые нужно перечислять деньги
@@ -1424,25 +1424,25 @@ function distribute_state_balances() {
 	$rightwing_id = $state_accounts['rightwing'];
 	foreach ( formAccountArray ('user') as $account )
   {
-    $account_has_governement_group = FALSE;         
+    $account_has_governement_group = FALSE;
 	  $q = mysql_query("SELECT * FROM  `usersgroup` WHERE  `id` = '".$account['id']."' AND `bankgroup` = 'government'");
-    if (mysql_num_rows($q)!==0) $account_has_governement_group = TRUE; 
+    if (mysql_num_rows($q)!==0) $account_has_governement_group = TRUE;
 		if ( $account['state'] == 'rightwing' || $account_has_governement_group == TRUE) {
 			$q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '".$account['id']."' AND `balance` < $infium");
 			if (mysql_num_rows($q)!==0)continue;
-      
-      $active_accounts_count++; 
+
+      $active_accounts_count++;
 			$accountlist[]=$account['id'];
 			$currency[]=$account['currency'];
-		} 
-  } 
-    
-    $q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '".$rightwing_id."';");  
+		}
+  }
+
+    $q = mysql_query("SELECT * FROM  `accounts` WHERE  `id` = '".$rightwing_id."';");
     $f = mysql_fetch_array($q);
     $rightwing_balance = $f['balance'];
-    
-    $summ_to_distribute = $rightwing_balance / $active_accounts_count; 
-    
+
+    $summ_to_distribute = $rightwing_balance / $active_accounts_count;
+
 	foreach ( $accountlist as $key=>$id ) {
 		$account_id_to = id2account($id);
 		if (!transmit ($rightwing_id, $account_id_to, (int)$summ_to_distribute, $currency[$key], 'Распределение бюджета государства')) {
@@ -1450,7 +1450,7 @@ function distribute_state_balances() {
 			return FALSE;
 		}
 	}
-	
+
 	mysql_query ("COMMIT;");
 	return TRUE;
 }
@@ -1468,13 +1468,13 @@ function less ($array, $element_from, $offset) {
   for($i = $element_from; $i < count($array) && $i < $element_from + $offset; $i++){
     $result_array[$i - $element_from] = $array[$i];
   }
-  
+
   return $result_array;
 }
 
 function getMoneyLog ( $account_id_from, $account_id_to ) {
 	$sql = "SELECT * FROM  `logs_money`";
-	
+
 	if ( $account_id_from !== '' || $account_id_to!=='' ) $sql .= " WHERE ";
 	if ( $account_id_from !== '' ) {
 		$id_from = account2id ( $account_id_from );
@@ -1487,9 +1487,9 @@ function getMoneyLog ( $account_id_from, $account_id_to ) {
 		$id_to = account2id ( $account_id_to );
 		$sql .= "`id_to`=$id_to";
 	}
-	
+
 	if ( !($q = mysql_query ($sql))) {
-		report_error ("Не удалось получить статистику из базы данных"); 
+		report_error ("Не удалось получить статистику из базы данных");
 	}
 
 	$rows = mysql_num_rows( $q );
@@ -1499,10 +1499,10 @@ function getMoneyLog ( $account_id_from, $account_id_to ) {
 	{
 		for ($i = 0; $i < $rows; $i++) {
 			$f = mysql_fetch_array($q);
-			
+
 			$money = $f['money'];
 			if ( $account_id_from == $account_id_to && $account_id_from == id2account($f['id_from']) ) $money *= (-1);
-			
+
 			$log[$i]['account_id_from'] = id2account($f['id_from']);
 			$log[$i]['account_id_to'] = id2account($f['id_to']);
 			$log[$i]['money'] = $money;
@@ -1510,92 +1510,92 @@ function getMoneyLog ( $account_id_from, $account_id_to ) {
 			$log[$i]['timestamp'] = $f['timestamp'];
 			$sum += $f['money'];
 		}
-		
+
 		return array( 'logs'=>$log, 'sum'=>$sum );
 	}
 	else
 	{
 		return array( 'logs'=>array(), 'sum'=>$sum );
-	}	
-}     
+	}
+}
 
-  
+
 function getGlobalAdminLog () {
 	if ( !($q = mysql_query ("SELECT * FROM  `logs_admin`"))) {
-		report_error ("Не удалось получить логи из базы данных"); 
+		report_error ("Не удалось получить логи из базы данных");
 	}
 	for ($i = 0; $i < mysql_num_rows ($q); $i++) {
 		$f = mysql_fetch_array($q);
-		
+
 		$log[$i]['admin_id'] = $f['admin_id'];
 		$log[$i]['account_id'] = $f['account_id'];
 		$log[$i]['action'] = $f['action'];
-		$log[$i]['ip'] = $f['ip'];   
+		$log[$i]['ip'] = $f['ip'];
 		$log[$i]['time'] = $f['time'];
 	}
-	
+
 	return $log;
 }
-     
+
 function getGlobalErrorsLog () {
 	if ( !($q = mysql_query ("SELECT * FROM  `logs_errors`"))) {
-		report_error ("Не удалось получить логи из базы данных"); 
+		report_error ("Не удалось получить логи из базы данных");
 	}
 	for ($i = 0; $i < mysql_num_rows ($q); $i++) {
 		$f = mysql_fetch_array($q);
-		
+
 		$log[$i]['id'] = $f['id'];
 		$log[$i]['error'] = $f['error'];
 		$log[$i]['ip'] = $f['ip'];
-		$log[$i]['time'] = $f['time'];  
+		$log[$i]['time'] = $f['time'];
 	}
-	
+
 	return $log;
-}     
+}
 
 function getGlobalLoginsLog () {
 	if ( !($q = mysql_query ("SELECT * FROM  `logs_logins`"))) {
-		report_error ("Не удалось получить логи из базы данных"); 
+		report_error ("Не удалось получить логи из базы данных");
 	}
 	for ($i = 0; $i < mysql_num_rows ($q); $i++) {
 		$f = mysql_fetch_array($q);
-		
+
 		$log[$i]['id'] = $f['id'];
 		$log[$i]['ip'] = $f['ip'];
 		$log[$i]['success'] = $f['success'];
-		$log[$i]['timestamp'] = $f['timestamp'];  
+		$log[$i]['timestamp'] = $f['timestamp'];
 	}
-	
+
 	return $log;
-}   
+}
 
 function getGlobalMoneyLog () {
 	if ( !($q = mysql_query ("SELECT * FROM  `logs_money`"))) {
-		report_error ("Не удалось получить логи из базы данных"); 
+		report_error ("Не удалось получить логи из базы данных");
 	}
 	for ($i = 0; $i < mysql_num_rows ($q); $i++) {
 		$f = mysql_fetch_array($q);
-		
+
 		$log[$i]['id_from'] = $f['id_from'];
 		$log[$i]['id_to'] = $f['id_to'];
 		$log[$i]['money'] = $f['money'];
-		$log[$i]['currency'] = $f['currency'];  
-		$log[$i]['comment'] = $f['comment']; 
-		$log[$i]['ip'] = $f['ip'];  
-		$log[$i]['timestamp'] = $f['timestamp']; 
+		$log[$i]['currency'] = $f['currency'];
+		$log[$i]['comment'] = $f['comment'];
+		$log[$i]['ip'] = $f['ip'];
+		$log[$i]['timestamp'] = $f['timestamp'];
 	}
-	
+
 	return $log;
 }
 
 
 function add_vote ( $vote_topic, $vote_variants, $state_filter, $active_flag ) {
 	mysql_query ("START TRANSACTION;");
-	
+
 	$q = mysql_query ("SELECT MAX(`id`) FROM `votes_list`");
 	$f = mysql_fetch_array ($q);
 	$id = $f['MAX(`id`)'] + 1;
-	
+
 	if ( !mysql_query("
 		INSERT INTO `votes_list` (`id`, `topic`, `variants_num`, `state_filter`, `active`)
 		VALUES ('$id', '$vote_topic', '".count($vote_variants)."', '$state_filter', '$active_flag');
@@ -1603,7 +1603,7 @@ function add_vote ( $vote_topic, $vote_variants, $state_filter, $active_flag ) {
 		report_error("Не удалось добавить опрос в таблицу опросов");
 		return FALSE;
 	}
-	
+
 	foreach ($vote_variants as $variant_id=>$text) {
 		if ( !mysql_query("
 			INSERT INTO `votes_variants` (`vote_id`, `variant_id`, `text`)
@@ -1622,7 +1622,7 @@ function get_votes_list ( $state_filter, $active_flag ) {
 
 	$sql = "SELECT * FROM `votes_list` WHERE `active`='$active_flag'";
 	if ($state_filter !== '') $sql .= " AND (`state_filter`='' OR `state_filter`='$state_filter');";
-	
+
 	if ( !($q = mysql_query ($sql)) ) {
 		report_error("Не удалось получить список голосований из БД");
 		return FALSE;
@@ -1651,7 +1651,7 @@ function get_vote_data ( $vote_id ) {
 	$vote_topic = $f['topic'];
 	$state_filter = $f['state_filter'];
 	$active_flag = $f['active'];
-	
+
 	if ( !($q = mysql_query ("SELECT * FROM `votes_variants` WHERE `vote_id`='$vote_id'")) ) {
 		report_error("Не удалось информацию о голосовании из БД");
 		return FALSE;
@@ -1678,7 +1678,7 @@ function get_vote_data ( $vote_id ) {
 function save_vote ( $vote_id, $vote_topic, $vote_variants, $state_filter, $active_flag ) {
 	$vote = get_vote_data ( $vote_id );
 	mysql_query ("START TRANSACTION;");
-	
+
 	if ( $vote['votes_count'] > 0 ) {
 		// только флаг актвности и фильтр по гос-ву
 		if ( !mysql_query("
@@ -1717,8 +1717,8 @@ function save_vote ( $vote_id, $vote_topic, $vote_variants, $state_filter, $acti
 				return FALSE;
 			}
 		}
-		mysql_query ("COMMIT;");	
-		return TRUE;	
+		mysql_query ("COMMIT;");
+		return TRUE;
 	}
 }
 
@@ -1740,7 +1740,7 @@ function get_vote_results ( $vote_id, $account ) {
 		if ( !($q = mysql_query ("SELECT * FROM `votes_choices` WHERE `vote_id`='$vote_id';")) ) {
 			report_error("Не удалось информацию о голосовании из БД");
 			return FALSE;
-		}		
+		}
 		for ($i = 0; $i < mysql_num_rows ($q); $i++) {
 			$f = mysql_fetch_array($q);
 			$vote_choices[$f['variant_id']]++;

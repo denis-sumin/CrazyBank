@@ -6,7 +6,7 @@ function setfocus (id) {
 
 function InvertCheckboxes (str) {
 	temp = document.getElementById(str).elements.length ;
-			         
+
 	for (i=0; i < temp; i++) {
 		if ( document.getElementById(str).elements[i].checked == 1 ) { document.getElementById(str).elements[i].checked = 0; }
 		else { document.getElementById(str).elements[i].checked = 1 }

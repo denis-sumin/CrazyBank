@@ -43,13 +43,13 @@ echo '<div id="rates">
 </div>';
 
 function show_rates( $action ) {
-	global $modules, $account, $accountlist;	
+	global $modules, $account, $accountlist;
 	$module = $modules['rates'];
 
 	switch ($action) {
 		case 'show_rates':
 			$rates = getRates();
-			
+
 			echo '<div>
 			<p>
 			1 пиастр = '.number_format ($rates['piastre']/$rates['boubloon'], 3, ',', '').' бублона<br />

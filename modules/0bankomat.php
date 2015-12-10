@@ -3,7 +3,7 @@
 
 $module = 'bankomat'; // системное название модуля
 
-if ( !defined("RequestModule") || RequestModule !== 'core' ) die;  
+if ( !defined("RequestModule") || RequestModule !== 'core' ) die;
 
 $modules[$module]['name'] = 'Банкомат'; // человеческое название модуля
 
@@ -34,7 +34,7 @@ function print_report ($log) {
 			<th>Время</th>
 		</tr>
 	';
-	foreach ($log as $log_item) {           
+	foreach ($log as $log_item) {
 		echo '
 		<tr>
 		<td>'.$log_item['account_id_from'].'</td>
@@ -43,7 +43,7 @@ function print_report ($log) {
 		<td>'.$log_item['comment'].'</td>
 		<td>'.$log_item['timestamp'].'</td>
 		</tr>
-		';      
+		';
 	}
 	echo '</table>';
 }
@@ -55,7 +55,7 @@ function execute_transfer( $account_id_from, $account_id_to, $n, $currency, $com
 	if( accounttype( $account_id_to ) == 'user' )
 	{
 		$commission = $n * $transfersToUsersCommission;
-		$res = 
+		$res =
 			transmit( $account_id_from, $account_id_to, ($n-$commission), $currency, $comment, false ) &&
 			transmit( $account_id_from, 0, $commission, $currency, 'Комиссия за перевод '.$comment, false );
 	}
@@ -67,12 +67,12 @@ function execute_transfer( $account_id_from, $account_id_to, $n, $currency, $com
 }
 
 function show_bankomat( $action ) {
-	global $modules, $account, $accountlist;	
+	global $modules, $account, $accountlist;
 	$module = $modules['bankomat'];
-	
+
 	$currency = getCurrencyList();
 	//$rates = getRates();
-	
+
 	switch ($action) {
 		case $module['action'][0]: // Проверка баланса
 			if ( isset ($_POST[$module['action'][0]]) )	{
@@ -80,18 +80,18 @@ function show_bankomat( $action ) {
 					$account = get_account_info ($_POST['account_id']);
 				}
 			}
-			
+
 			if ( isset ($account['id']) ) {
-				
+
 				echo '<p>';
 				echo 'У Вас на счету <big>'.balance_format ($account['balance']).'&nbsp;'.$currency[$account['currency']].'</big><br />';
 				foreach ($currency as $cbankname=>$cname) {
-					if ($cbankname !== $account['currency']) 
+					if ($cbankname !== $account['currency'])
 					echo 'В пересчете это примерно <big>'.number_format ($account['balance']*$rates[$account['currency']]/$rates[$cbankname], 0).'&nbsp;'.$cname.'</big>';
 				}
 				echo '</p>';
 				//echo '<p>Иначе у Вас на счету примерно <big>'.number_format ($account['balance']*$rates[$account['currency']], 0).'&nbsp;лит</big></p>';
-				
+
 			}
 			else {
 				echo '
@@ -105,13 +105,13 @@ function show_bankomat( $action ) {
 				';
 			}
 			break;
-		
+
 		case $module['action'][1]: // Перевод денег
 			$accountlist = TRUE;
-			
+
 			if ( isset ($_POST['confirm']) ) {
 				$transmit=FALSE;
-				if  (empty ($account['id']) ) { 
+				if  (empty ($account['id']) ) {
 					if ( check_password($_POST['account_id'],$_POST['pin']) ) {
 						if ( execute_transfer( $_POST['account_id'], $_POST['account_id_to'], $_POST['cash'], $_POST['currency'], $_POST['comment'] ) )  $transmit=TRUE;
 					}
@@ -121,7 +121,7 @@ function show_bankomat( $action ) {
 						if ( execute_transfer( $_SESSION['account_id'], $_POST['account_id_to'], $_POST['cash'], $_POST['currency'], $_POST['comment'] ) ) $transmit=TRUE;
 					}
 					else report_error('Зафиксирована попытка обмануть банк. Аяяяй.');
-					
+
 				}
 				echo '<p style="margin-bottom: 40px;"><i>Перевод прошел успешно!</i></p>';
 			}
@@ -132,12 +132,12 @@ function show_bankomat( $action ) {
 					echo '<span style="color: red">Вы не указали комментарий к переводу.</span><br />В случае каких-либо проблем никто не сможет узнать, что это за перевод<br /><i><a href="javascript:history.back()">Назад</a></i>'; }
 				if ( (empty ($account['id']) && $_POST['account_id'] == $_POST['account_id_to'] ) || ( isset ($account['id']) && $account['id'] == $_POST['account_id_to'] ) ) {
 					echo 'Вы хотите перевести деньги себе. Зачем..?<br /><i><a href="javascript:history.back()">Назад</a></i>'; die; }
-				
+
 				if ( empty ($account['id']) && !accountIsActive ( $_POST['account_id'] ) ) {
 					report_error ('Счет совершающего перевод не существует или заблокирован. Не удалось совершить перевод'); die; }
 				if ( !accountIsActive ( $_POST['account_id_to'] ) ) {
 					report_error ('Счет получателя не существует или заблокирован. Не удалось совершить перевод'); die; }
-				
+
 				echo '<p>Вы собираетесь перевести '.$_POST['cash'].'&nbsp;'.$currency[$_POST['currency']].' на счет '.$_POST['account_id_to'].'</p>
 				<p>Информация о счете:</p>
 				<p>';
@@ -145,7 +145,7 @@ function show_bankomat( $action ) {
 				echo '</p>';
 				echo '<form method="POST" action="'.$_SERVER["PHP_SELF"].'?action='.$action.'">
 				<p>Подтвердите, пожалуйста, перевод';
-				if (empty ($account['id']) ) echo ' вводом своего ПИН-кода:				
+				if (empty ($account['id']) ) echo ' вводом своего ПИН-кода:
 				<br /><input type="password" name="pin" />
 				<input type="hidden" value="'.$_POST['account_id'].'" name="account_id" />
 				';
@@ -186,11 +186,11 @@ function show_bankomat( $action ) {
 				';
 			}
 			break;
-			
+
 		case 'account_history':
-			
+
 			//echo '<h2>'.$states[$account['state']].'</h2>';
-			
+
 			if( !@$account['account_id'] )
 			{
 				echo 'Невозможно получить информацию о счёте.';
@@ -199,17 +199,17 @@ function show_bankomat( $action ) {
 
 			$income = getMoneyLog( '', $account['account_id'] );
 			$outgoing = getMoneyLog( $account['account_id'], '' );
-			
+
 			echo '<h3>Расходы</h3>';
 			print_account_log ( $outgoing['logs'] );
 			echo '<p>Сумма: '.$outgoing['sum'].'</p>';
 			echo '<h3>Доходы</h3>';
-			print_account_log ( $income['logs'] );	
+			print_account_log ( $income['logs'] );
 			echo '<p>Сумма: '.$income['sum'].'</p>';
 			break;
-			
+
 		default:
-		
+
 	}
 }
 

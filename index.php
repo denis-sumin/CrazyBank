@@ -19,7 +19,7 @@ function print_header() {
 		</head>
 		<body>
 		<div id="header">&nbsp;</div>
-		<div id="indexlink"><a href="'.$_SERVER["PHP_SELF"].'">Crazy Банк</a></div>';	
+		<div id="indexlink"><a href="'.$_SERVER["PHP_SELF"].'">Crazy Банк</a></div>';
 	return TRUE;
 }
 
@@ -39,18 +39,18 @@ pageTracker._trackPageview();
 		</body>
 	</html>
 	';
-	
+
 	return TRUE;
 }
 
 function menu ($curAction) {
-	global $modules, $account;	
-	
+	global $modules, $account;
+
 	if( !$modules )
 	{
 		return FALSE;
 	}
-	
+
 	echo '<ul>';
 	foreach ($modules as $module=>$m) {
 		if ( ($module !== 'welcome') && check_account_access ($module, $account)) {
@@ -73,8 +73,8 @@ function menu ($curAction) {
 }
 
 function title ($curAction) {
-	global $modules, $account;	
-	
+	global $modules, $account;
+
 	if( !$modules )
 	{
 		return '';
@@ -112,7 +112,7 @@ function find_module ($action) {
 function exec_module ($module) {
 	global $action, $account;
 	if ($module === FALSE) return FALSE;
-	
+
 	if (! check_account_access ($module, $account) ) {
 		show_auth ($action);
 		report_error ("У Вас нет права использования этого модуля");
@@ -132,7 +132,7 @@ function check_account_access ( $module ) {
 	{
 		return FALSE;
 	}
-	
+
 	foreach ($account['group'] as $ukey=>$ugroup) {
 		foreach ($modules[$module]['groups'] as $mkey=>$mgroup) {
 			if ( $ugroup == $mgroup ) return TRUE;
@@ -153,11 +153,11 @@ $accountlist = FALSE;
 
 print_header();
 
-if (!mysql_connect($mysql_server,$mysql_user,$mysql_password)) 
+if (!mysql_connect($mysql_server,$mysql_user,$mysql_password))
 	exit ('Произошла ошибка подключения к базе данных. Повторите попытку и сообщите, пожалуйста, о случившемся правительству Crazy Week.');
-	
+
 mysql_select_db($mysql_db);
-	
+
 if (empty($_GET['action'])) $action = 'welcome';
 	else $action = $_GET['action'];
 
@@ -191,32 +191,32 @@ echo '<div id="states">';
 if( $states )
 {
 	echo '<b>Состав парламента:</b>';
-	foreach ($states as $key=>$value) 
-	echo '   
-	<span style="padding-left: 10px;">
-	'.$value.'
-	</span>'; 	
-}
-if( $currency )
-{
-	echo '   
-	<span style="padding-left: 10px;">
-	<b>Валюта:</b>';
-
-	foreach ($currency as $key=>$value) 
-	echo '   
+	foreach ($states as $key=>$value)
+	echo '
 	<span style="padding-left: 10px;">
 	'.$value.'
 	</span>';
-	echo '</span>'; 
-}      
+}
+if( $currency )
+{
+	echo '
+	<span style="padding-left: 10px;">
+	<b>Валюта:</b>';
+
+	foreach ($currency as $key=>$value)
+	echo '
+	<span style="padding-left: 10px;">
+	'.$value.'
+	</span>';
+	echo '</span>';
+}
 echo '</div>';
 // END Успехи государств в шапке
-	
+
 echo '<div id="menu">';
 menu ($action);
 echo '</div>';
-	
+
 echo '<div id="main">';
 if ( ( $title=title ($action) ) != '' ) echo '<h1>'.$title.'</h1>';
 exec_module (find_module ($action) );

@@ -14,16 +14,16 @@
 	<body>
 
 		<h1>Интернет-магазин Crazy Week</h1>
-	
+
 <?php
 include ("../mysql_config.php");
 include ("../config.php");
 include ("../functions_controller.php");
 include ("../functions_view.php");
 
-if (!mysql_connect($mysql_server,$mysql_user,$mysql_password)) 
+if (!mysql_connect($mysql_server,$mysql_user,$mysql_password))
 	exit ('Произошла ошибка подключения к базе данных. Повторите попытку и сообщите, пожалуйста, о случившемся правительству Crazy Week.');
-	
+
 mysql_select_db($mysql_db);
 
 $goods_list = getGoodsList( 0 );
@@ -31,7 +31,7 @@ $goods_list = getGoodsList( 0 );
 foreach ( $goods_list as $key => $value ) {
 	echo '<h2>'.$value['title'].'</h2>';
 	echo '<p><img src="/upload/shop/'.$key.'.'.$value['photo_extension'].'" align="left" style="max-width: 400px; max-height: 400px; margin-right: 10px;"/>'.$value['description'].'</p>';
-	
+
 	$company = get_account_info( $value['company_id'] );
 
 	echo '<p style="clear: both">Продавец: '.$company['name'].'</p>';

@@ -22,7 +22,7 @@ $modules[$module]['title'][] = 'Массовая активация';
 if( $g_config['printing_PINs_enabled'] )
 {
 	$modules[$module]['action'][] = 'mass_print_pins'; // работает полностью
-	$modules[$module]['menu'][] = 'Массовое изменение ПИНов и&nbsp;вывод&nbsp;для&nbsp;печати';	
+	$modules[$module]['menu'][] = 'Массовое изменение ПИНов и&nbsp;вывод&nbsp;для&nbsp;печати';
 }
 
 $modules[$module]['action'][] = 'import_people_lit_msu_ru';
@@ -31,21 +31,21 @@ $modules[$module]['menu'][] = 'Импорт лицеистов и препода
 $modules[$module]['groups'][] = 'registrar';
 
 function show_register ($action) {
-	global $modules, $account, $accountlist, $group;	
+	global $modules, $account, $accountlist, $group;
 	$module = $modules['register'];
-	
+
 	switch ($action) {
 		case 'mass-add-students':
 			if ( empty ( $_POST ) ) {
-				
+
 				echo '
 				<form method="POST" action="'.$_SERVER["PHP_SELF"].'?action='.$action.'">
-					Выберите, пожалуйста, группу, которую Вы будете добавлять: 
+					Выберите, пожалуйста, группу, которую Вы будете добавлять:
 					<select name="group" size="1">
 				';
-				
+
 				foreach ($group as $key=>$value) echo '<option value="'.$value.'">'.$value.'</option>';
-					
+
 				echo '
 					</select>
 					<input type="submit" name="stage1" value="Дальше" />
@@ -56,7 +56,7 @@ function show_register ($action) {
 				echo '
 				<form method="POST" action="'.$_SERVER["PHP_SELF"].'?action='.$action.'">
 				';
-				
+
 				for ($i=0; $i<30; $i++) {
 					echo '
 					<p>'.($i+1).'<br />
@@ -68,8 +68,8 @@ function show_register ($action) {
 					</p>
 					';
 				}
-				
-				echo '	
+
+				echo '
 					<input type="hidden" name="group" value="'.$_POST['group'].'" />
 					<input type="submit" name="stage2" value="Добавить группу '.$_POST['group'].'" />
 				</form>
@@ -86,13 +86,13 @@ function show_register ($action) {
 			break;
 		case 'activate':
 			$accountlist = TRUE;
-		
+
 			if ( isset ($_POST['confirm']) ) {
 				if ( activate ( $_POST['account_id'] ) ) {
 				echo 'Счет активирован';
 				}
 			}
-				
+
 			if ( isset ($_POST[$action]) ) {
 				echo '
 				<div>
@@ -116,17 +116,17 @@ function show_register ($action) {
 			</div>';
 			break;
 		case 'mass-activate':
-			
+
 			if ( empty ( $_POST ) ) {
-				
+
 				echo '
 				<form method="POST" action="'.$_SERVER["PHP_SELF"].'?action='.$action.'">
-					Выберите, пожалуйста, группу, которую Вы будете активировать: 
+					Выберите, пожалуйста, группу, которую Вы будете активировать:
 					<select name="group" size="1">
 				';
-				
+
 				foreach ($group as $key=>$value) echo '<option value="'.$value.'">'.$value.'</option>';
-					
+
 				echo '
 					</select>
 					<input type="submit" name="stage1" value="Дальше" />
@@ -134,19 +134,19 @@ function show_register ($action) {
 				';
 			}
 			elseif ( isset ($_POST['stage1']) ) {
-			
+
 				$users = formAccountArray ( 'user', 'surname', 'ASC', '', $_POST['group'] );
 				$field = array ( 'checkbox'=>'', 'id'=>'', 'surname'=>'Фамилия', 'name'=>'Имя', 'litgroup'=>'' );
-			
+
 				echo '
 				<form method="POST" id="activation" action="'.$_SERVER["PHP_SELF"].'?action='.$action.'">
 				<p>';
-				
+
 				echo '<table id="accounttable">';
-				
+
 				foreach ($users as $key=>$user) {
 					if ( $user['blocked'] != 1 ) continue;
-					
+
 					echo '<tr>';
 					foreach ($field as $f=>$text) {
 						if ( $f=='balance' ) $align='right'; elseif ( $f=='id' || $f == 'checkbox' ) $align='center'; else $align='left';
@@ -162,7 +162,7 @@ function show_register ($action) {
 					}
 					echo '</tr>';
 				}
-				
+
 				echo '</table>
 					<input type="hidden" name="group" value="'.$_POST['group'].'" />
 					<input type="button" value="Инвертировать чекбоксы" onclick="InvertCheckboxes(\'activation\')" /></p>
@@ -181,13 +181,13 @@ function show_register ($action) {
 
 			break;
 		case 'mass_print_pins':
-		
+
 			if ( isset ($_POST['confirm']) ) {
 				define ("register", 'mass_print_pins');
 				mass_print_pins();
-				
+
 			}
-			
+
 			if ( empty ($_POST) ) {
 				echo '
 				<div>
@@ -196,18 +196,18 @@ function show_register ($action) {
 				Продолжайте, только если Вы полностью понимаете последствия этого действия.
 				<form method="post">
 					<input type="submit" name="confirm" value="Подтвердить">
-				</form>			
+				</form>
 				</div>';
 			}
 			break;
-		
+
 		case 'import_people_lit_msu_ru':
-		
+
 			if ( isset ($_POST['confirm']) ) {
 				define ("register", 'import_people_lit_msu_ru');
-				import_people_lit_msu_ru();			
+				import_people_lit_msu_ru();
 			}
-			
+
 			if ( empty ($_POST) ) {
 				echo '
 				<div>
@@ -215,7 +215,7 @@ function show_register ($action) {
 				Это действие приведет к добавлению из базы лицеистов people.lit.msu.ru всех преподавателей и нынешних лицеистов
 				<form method="post">
 					<input type="submit" name="confirm" value="Продолжить">
-				</form>			
+				</form>
 				</div>';
 			}
 			break;

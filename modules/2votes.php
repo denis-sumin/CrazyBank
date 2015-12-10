@@ -14,12 +14,12 @@ $modules[$module]['title'][] = 'Голосования';
 $modules[$module]['groups'][] = 'admin';
 
 function show_votes ($action) {
-	global $modules, $account, $accountlist, $group;	
+	global $modules, $account, $accountlist, $group;
 	$module = $modules['admin'];
-		
+
 	switch ($action) {
-		case 'votes_view':	
-			if ( isset($_GET['vote_id']) ) {				
+		case 'votes_view':
+			if ( isset($_GET['vote_id']) ) {
 				if ( isset ($_POST['send_vote']) ) {
 					if ($_GET['vote_id']!=$_POST['vote_id']) report_error('Пахнет обманом. Никогда так не делайте больше');
 					if ( send_vote ( $account, $_POST['vote_id'], $_POST['choice'] ) ) {
@@ -29,7 +29,7 @@ function show_votes ($action) {
 				if ( $vote_results = get_vote_results ( $_GET['vote_id'], $account ) ) {
 					$vote_data		= $vote_results['vote_data'];
 					$vote_choices	= $vote_results['vote_choices'];
-					
+
 					echo '
 					<h2>'.$vote_data['vote_topic'].': результаты</h2>
 					<table>
@@ -107,7 +107,7 @@ function show_votes ($action) {
 			else {
 				$active_votes = get_votes_list ($account['state'], 1);
 				$not_active_votes = get_votes_list ($account['state'], 0);
-				
+
 				if (!empty($active_votes)) {
 					echo '<p>Активные голосования:</p><ul>';
 					foreach ( $active_votes as $votes_item )

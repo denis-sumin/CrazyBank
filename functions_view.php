@@ -25,9 +25,9 @@ function print_errors() {
 
 function print_account_info ($account_id) {
 	if ( !($account = get_account_info ($account_id)) ) { return FALSE; }
-	
-	$arg = func_get_args();	
-	
+
+	$arg = func_get_args();
+
 	switch ( accounttype ($account_id) ) {
 		case 'user':
 			$states = getStatesList();
@@ -39,11 +39,11 @@ function print_account_info ($account_id) {
 				<tr><td>Имя:</td><td>'.$account['name'].'</td></tr>
 				<tr><td>Группа:</td><td>'.$account['litgroup'].'</td></tr>
 				<tr><td>Партия:</td><td>'.@$states[$account['state']].'</td></tr>';
-		// лучше проверку прав текущего пользователя			
+		// лучше проверку прав текущего пользователя
 			if ( @check_account_access ('admin') || @check_account_access ('bankteller') || $account['id'] == @$_SESSION['account_id'] ) {
-				
+
 				$currency = getCurrencyList();
-				
+
 				echo '
 					<tr><td>Баланс счета:</td><td>'.balance_format ($account['balance'],0).'</td></tr>
 					<tr><td>Валюта:</td><td>'.@$currency[$account['currency']].'</td></tr>
@@ -54,7 +54,7 @@ function print_account_info ($account_id) {
 					$f = mysql_fetch_array($q);
 					if ( @check_account_access ('accountlists') )
 						echo '<li><a href="?action=account_info&account_id='.id2account($value).'">'.$f['oname'].'</a>'."</li>\n";
-					else 
+					else
 						echo '<li>'.$f['oname']."</li>\n";
 				}
 				echo '		</ul></td></tr>';
@@ -65,17 +65,17 @@ function print_account_info ($account_id) {
 				if (!empty ($account['group'])) foreach ($account['group'] as $key=>$value) {
 					$q = mysql_query("SELECT * FROM `groups` WHERE bankname='$value'");
 					$f = mysql_fetch_array($q);
-					if ($f['name']!=='') echo '<li>'.$f['name'].'</li>';	
+					if ($f['name']!=='') echo '<li>'.$f['name'].'</li>';
 				}
 				echo '</ul></td></tr>';
 			}
-			echo '	
+			echo '
 			</table>'."\n";
 			break;
-			
+
 		case 'company':
 			$currency = getCurrencyList();
-			
+
 			echo '
 			<table class="userinfo" style="min-width: 300px;">
 				<tr><td>Номер счета:</td><td>'.$account['id'].'</td></tr>
@@ -104,11 +104,11 @@ function print_account_info ($account_id) {
 			';
 			echo '
 			</table>'."\n";
-			break;   
-      
-    case 'state': 
+			break;
+
+    case 'state':
       $currency = getCurrencyList();
-			
+
 			echo '
 			<table class="userinfo" style="min-width: 300px;">
 				<tr><td>Номер счета:</td><td>'.$account['id'].'</td></tr>
@@ -137,14 +137,14 @@ function print_account_info ($account_id) {
 			';
 			echo '
 			</table>'."\n";
-			break;  
-	}     
+			break;
+	}
 	return TRUE;
 }
 
 function mass_print_pins () {
 	if ( !defined("register") || register !== 'mass_print_pins' ) die;
-	
+
 	$q = mysql_query ("SELECT * FROM `accounts` INNER JOIN `users` ON `accounts`.`id` = `users`.`id` WHERE `blocked`='1' ORDER BY `litgroup`, `surname`");
 	for ($i = 0; $i < mysql_num_rows ($q); $i++) {
 		$f = mysql_fetch_array($q);
@@ -170,10 +170,10 @@ function mass_print_pins () {
 		Храните Ваш ПИН-код только в надежном месте, это обеспечит сохранность средств на электронном счете.<br />
 		Если Вы забыли Ваш ПИН-код, обратитесь к администрации Crazy-week.</td></tr>
 		</table>';
-		
+
 		updatePin ( id2account($f['id']), $pin );
 	}
-	
+
 }
 
 function print_cheque () {
@@ -200,9 +200,9 @@ function print_cheque () {
 				<td width="66px"><img src="./images/LITavrik.jpg" width="66px" /></td>
 			</tr>
 			</table>';
-			
+
 		}
-		
+
 		$q = mysql_query ("SELECT * FROM `accounts_res` INNER JOIN `companies` ON `accounts_res`.`id` = `companies`.`id` WHERE `balance`>'10' ORDER BY `oname`");
 		for ($i = 0; $i < mysql_num_rows ($q); $i++) {
 			$f = mysql_fetch_array($q);
@@ -222,7 +222,7 @@ function print_cheque () {
 						$q1 = mysql_query("SELECT * FROM `users` WHERE id='$value'");
 						$f1 = mysql_fetch_array($q1);
 						if (empty ($f1)) continue;
-						echo '<li style="list-style:none;margin-left:0;">'.$f1['name'].' '.$f1['surname'].'';					
+						echo '<li style="list-style:none;margin-left:0;">'.$f1['name'].' '.$f1['surname'].'';
 						echo "</li>\n";
 					}
 					echo '		</ul></td></tr>
@@ -233,7 +233,7 @@ function print_cheque () {
 				<td width="66px"><img src="./images/LITavrik.jpg" width="66px" /></td>
 			</tr>
 			</table>';
-			
+
 		}
 	}
 }
@@ -248,16 +248,16 @@ function print_account_log ($log, $case='') {
 			<th>Комментарий</th>
 			<th>Время</th>
 		</tr>
-	';      
+	';
 	if ( $case == 'state_report' ) $GlobalTax = 0;
-	foreach ($log as $log_item) {         
+	foreach ($log as $log_item) {
 		if ( $case == 'state_report' ) {
 			if ( $log_item['comment'] == 'Налог партии' ) {
-				$TaxesToId = $log_item['account_id_to'];    
-				$TimeOfTaxes = $log_item['timestamp'];    
+				$TaxesToId = $log_item['account_id_to'];
+				$TimeOfTaxes = $log_item['timestamp'];
 				$GlobalTax += $log_item['money'];
 				continue;
-			}  
+			}
 			else if ($GlobalTax !== 0) {
 				echo '
 			<tr>
@@ -267,7 +267,7 @@ function print_account_log ($log, $case='') {
 				<td>Налог партии</td>
 				<td>'.$TimeOfTaxes.'</td>
 			</tr>
-				';  
+				';
 				$GlobalTax = 0;
 			}
 		}
@@ -279,12 +279,12 @@ function print_account_log ($log, $case='') {
 			<td>'.$log_item['comment'].'</td>
 			<td>'.$log_item['timestamp'].'</td>
 		</tr>
-		';      
+		';
 	}
 	echo '
 	</table>
 	';
-}       
+}
 
 function print_admin_log ($log) {
 	echo '
@@ -296,22 +296,22 @@ function print_admin_log ($log) {
 			<th>IP-адрес</th>
 			<th>Время действия</th>
 		</tr>
-	';      
-	foreach ($log as $log_item) {  
+	';
+	foreach ($log as $log_item) {
 		echo '
 		<tr>
 			<td>'.$log_item['admin_id'].'</td>
 			<td>'.$log_item['account_id'].'</td>
 			<td>'.$log_item['action'].'</td>
-			<td>'.$log_item['ip'].'</td>    
+			<td>'.$log_item['ip'].'</td>
 			<td>'.$log_item['time'].'</td>
 		</tr>
-		';      
+		';
 	}
 	echo '
 	</table>
 	';
-}     
+}
 
 function print_errors_log ($log) {
 	echo '
@@ -322,21 +322,21 @@ function print_errors_log ($log) {
 			<th>IP пользователя</th>
 			<th>Время ошибки</th>
 		</tr>
-	';      
-	foreach ($log as $log_item) {  
+	';
+	foreach ($log as $log_item) {
 		echo '
 		<tr>
 			<td>'.$log_item['id'].'</td>
 			<td>'.$log_item['error'].'</td>
 			<td>'.$log_item['ip'].'</td>
-			<td>'.$log_item['time'].'</td>    
+			<td>'.$log_item['time'].'</td>
 		</tr>
-		';      
+		';
 	}
 	echo '
 	</table>
 	';
-}   
+}
 
 function print_logins_log ($log) {
 	echo '
@@ -347,21 +347,21 @@ function print_logins_log ($log) {
 			<th>Флаг успешного входа</th>
 			<th>Время попытки входа</th>
 		</tr>
-	';      
-	foreach ($log as $log_item) {  
+	';
+	foreach ($log as $log_item) {
 		echo '
 		<tr>
 			<td>'.$log_item['id'].'</td>
 			<td>'.$log_item['ip'].'</td>
 			<td>'.$log_item['success'].'</td>
-			<td>'.$log_item['timestamp'].'</td>    
+			<td>'.$log_item['timestamp'].'</td>
 		</tr>
-		';      
+		';
 	}
 	echo '
 	</table>
 	';
-}      
+}
 
 function print_money_log ($log) {
 	echo '
@@ -370,24 +370,24 @@ function print_money_log ($log) {
 			<th>ID счета отправителя</th>
 			<th>ID счета получателя</th>
 			<th>Сумма перевода</th>
-			<th>Валюта, в которой совершен перевод</th>  
-			<th>Комментарий к переводу</th>            
-			<th>IP-адрес</th>                   
+			<th>Валюта, в которой совершен перевод</th>
+			<th>Комментарий к переводу</th>
+			<th>IP-адрес</th>
 			<th>Время перевода</th>
 		</tr>
-	';      
-	foreach ($log as $log_item) {  
+	';
+	foreach ($log as $log_item) {
 		echo '
 		<tr>
 			<td>'.$log_item['id_from'].'</td>
 			<td>'.$log_item['id_to'].'</td>
 			<td>'.$log_item['money'].'</td>
-			<td>'.$log_item['currency'].'</td>  
+			<td>'.$log_item['currency'].'</td>
 			<td>'.$log_item['comment'].'</td>
-			<td>'.$log_item['ip'].'</td>  
-			<td>'.$log_item['timestamp'].'</td>   
+			<td>'.$log_item['ip'].'</td>
+			<td>'.$log_item['timestamp'].'</td>
 		</tr>
-		';      
+		';
 	}
 	echo '
 	</table>
