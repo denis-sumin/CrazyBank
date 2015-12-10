@@ -1241,21 +1241,12 @@ function activate ( $account_id ) {
 
 function import_people_lit_msu_ru () {
 	if ( !defined("register") || register !== 'import_people_lit_msu_ru' ) die;
-	
-	$url = "http://people.lit.msu.ru/people.php";
+
+	$url = "https://people.lit.msu.ru/people.php";
 	$litgroup = array ('staff', 'students');
-	
+
 	foreach ( $litgroup as $table ) {
-		$ch = curl_init();
-		curl_setopt ($ch, CURLOPT_URL, $url.'?table='.$table);
-		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 60);
-		$response = curl_exec($ch);
-		if ( curl_getinfo($ch,CURLINFO_HTTP_CODE) !== 200 ){
-			$response = "An error occured while communicating people.lit.msu.ru. Try again later";
-		}
-		
-		if ( $xml = simplexml_load_string($response) ) {
+		if ($xml = simpleXML_load_file($url.'?table='.$table, "SimpleXMLElement", LIBXML_NOCDATA)) {
 			for ($i=0; $i < $xml->count(); $i++) {
 				$person = (array) $xml->person[$i];
 				if ($table == 'staff') $person['litgroup'] = 'Преподаватель';
