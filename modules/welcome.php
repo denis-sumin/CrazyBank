@@ -15,7 +15,7 @@ $modules[$module]['groups'][] = 'company';
 function show_welcome () {
 	global $account;
 
-	if (check_account_access ('admin', $account))
+	// if (check_account_access ('admin', $account))
 	// echo '
 	// <p>Заметки администратора администратору :-)</p>
 	// ';
