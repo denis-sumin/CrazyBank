@@ -202,17 +202,24 @@ function show_register ($action) {
 			break;
 
 		case 'import_people_lit_msu_ru':
+			$grades = array();
+			foreach ($group as $g) {
+				$t = explode('.', $g);
+				if (count($t) == 2 && is_numeric($t[0]) && !in_array(intval($t[0]), $grades))
+					array_push($grades, intval($t[0]));
+			}
 
 			if ( isset ($_POST['confirm']) ) {
 				define ("register", 'import_people_lit_msu_ru');
-				import_people_lit_msu_ru();
+				import_people_lit_msu_ru($grades);
 			}
 
 			if ( empty ($_POST) ) {
 				echo '
 				<div>
 				<span style="color:red">Внимание!</span><br />
-				Это действие приведет к добавлению из базы лицеистов people.lit.msu.ru всех преподавателей и нынешних лицеистов
+				Это действие приведет к добавлению из базы лицеистов people.lit.msu.ru
+				всех преподавателей и нынешних лицеистов из потоков: '.implode($grades, ', ').'.
 				<form method="post">
 					<input type="submit" name="confirm" value="Продолжить">
 				</form>

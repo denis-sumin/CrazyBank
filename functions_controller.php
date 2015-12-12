@@ -1239,7 +1239,7 @@ function activate ( $account_id ) {
 	return TRUE;
 }
 
-function import_people_lit_msu_ru () {
+function import_people_lit_msu_ru($grades) {
 	if ( !defined("register") || register !== 'import_people_lit_msu_ru' ) die;
 
 	$url = "https://people.lit.msu.ru/people.php";
@@ -1252,7 +1252,7 @@ function import_people_lit_msu_ru () {
 				if ($table == 'staff') $person['litgroup'] = 'Преподаватель';
 				else
 					if ($table == 'students') {
-						if ($person['grade']==0 || $person['group']==0) continue;
+						if (!in_array(intval($person['grade']), $grades) || $person['group']==0) continue;
 						$person['litgroup'] = $person['grade'].'.'.$person['group'];
 					}
 				if ( !isset($person['photo_url']) || $person['photo_url'] == '' ) $person['photo_url'] = 'nophotoexists';
