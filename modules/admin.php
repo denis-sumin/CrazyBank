@@ -220,7 +220,7 @@ function show_admin ($action) {
 						}
 						echo '</select></tr>';
 					} else {
-						echo '<input type="hidden" name="state" value="'.$editUser['state'].''" />'
+						echo '<input type="hidden" name="state" value="'.$editUser['state'].'" />';
 					}
 					echo '
 					<tr><td>&nbsp;</td>
