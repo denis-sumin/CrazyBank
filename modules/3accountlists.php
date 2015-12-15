@@ -3,7 +3,8 @@
 
 $module = 'accountlists';
 
-if ( !defined("RequestModule") || ( RequestModule !== 'core' && RequestModule !== 'accountlist' ) ) die;
+if (!defined("RequestModule") || (RequestModule !== 'core' && RequestModule !== 'accountlist'))
+	die;
 
 $modules[$module]['name'] = 'Списки банковских счетов';
 
@@ -41,10 +42,12 @@ function show_accountlists ( $action ) {
 			if ( empty ($_GET['filterSurname']) ) $filterSurname = ''; else $filterSurname = $_GET['filterSurname'];
 			if ( empty ($_GET['filterGroup']) ) $filterGroup = ''; else $filterGroup = $_GET['filterGroup'];
 
-			$users = formAccountArray ( 'user', $sortField, $sortDir, $filterSurname, $filterGroup );
+			$users = formAccountArray('user', $sortField, $sortDir, $filterSurname, $filterGroup);
 // Начало фильтров
-			$alphabet = array
-				('А','Б','В','Г','Д','Е','Ж','З','И','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Э','Ю','Я');
+			$alphabet = array(
+				'А','Б','В','Г','Д','Е','Ж','З','И','К','Л','М','Н','О','П','Р','С','Т','У',
+				'Ф','Х','Ц','Ч','Ш','Щ','Э','Ю','Я'
+			);
 
 			echo "<script>
 				function hidefilters() {
@@ -59,27 +62,33 @@ function show_accountlists ( $action ) {
 			</script>";
 
 			echo '<div id="hfilters"><a href="javascript:showfilters()">Фильтры</a>
-			<a href="'.$_SERVER["PHP_SELF"].'?action='.$action.'" style="font-size: 75%;">Сбросить</a><span style="font-size: 75%;"> все фильтры</span></div>
+			<a href="'.$_SERVER["PHP_SELF"].'?action='.$action.'" style="font-size: 75%;">Сбросить</a>
+			<span style="font-size: 75%;"> все фильтры</span></div>
 			<div id="filters">
 			<a href="javascript:hidefilters()">Фильтры</a>
-			<a href="'.$_SERVER["PHP_SELF"].'?action='.$action.'" style="font-size: 75%;">Сбросить</a><span style="font-size: 75%;"> все фильтры</span>
+			<a href="'.$_SERVER["PHP_SELF"].'?action='.$action.'" style="font-size: 75%;">Сбросить</a>
+			<span style="font-size: 75%;"> все фильтры</span>
 			<div>
 			<p>Фамилия:<br />';
 
-			for ($i=0; $i<count($alphabet); $i++)
-			echo '
+			for ($i = 0; $i<count($alphabet); $i++) {
+				echo '
 				<a href="'.$_SERVER["PHP_SELF"].'?action='.$action.'&sortField='.$sortField.'
 				&sortDir='.$sortDir.'&filterSurname='.$alphabet[$i].'&filterGroup='.$filterGroup.'">'.$alphabet[$i].'</a> ';
-			echo '
+				echo '
 			</p><p>
 			Группа:<br />';
+			}
 
-			for ($i=0; $i<count($group); $i++) {
-			echo '
+			for ($i = 0; $i<count($group); $i++) {
+				echo '
 				<a href="'.$_SERVER["PHP_SELF"].'?action='.$action.'&sortField='.$sortField.'
 				&sortDir='.$sortDir.'&filterSurname='.$filterSurname.'&filterGroup='.$group[$i].'">'.$group[$i].'</a> ';
 
-			if ( !empty ($group[$i+1]) && ( ( $group[$i][0] != '1' && $group[$i][0] != $group[$i+1][0] ) || ( $group[$i][1] != $group[$i+1][1] ) ) ) echo '<br />';
+				if (!empty ($group[$i+1]) && (
+						($group[$i][0] != '1' && $group[$i][0] != $group[$i+1][0]) || ($group[$i][1] != $group[$i+1][1])
+					))
+					echo '<br />';
 			}
 
 			echo '
@@ -91,35 +100,51 @@ function show_accountlists ( $action ) {
 			echo '
 			<table id="accounttable">
 				<tr>';
-			if ( RequestModule == 'accountlist' ) echo '
+			if (RequestModule == 'accountlist')
+				echo '
 					<th></th>
 				';
 
 			foreach ($field as $f=>$text) {
 				echo '
 					<th>'.$text.'
-					<a title="По возрастанию" href="'.$_SERVER["PHP_SELF"].'?action='.$action.'&sortField='.$f.'&sortDir=ASC&filterSurname='.$filterSurname.'&filterGroup='.$filterGroup.'" class="sort-arrow">&uarr;</a><a title="По убыванию" href="'.$_SERVER["PHP_SELF"].'?action='.$action.'&sortField='.$f.'&sortDir=DESC&filterSurname='.$filterSurname.'&filterGroup='.$filterGroup.'" class="sort-arrow">&darr;</a></th>
-			';
+					<a title="По возрастанию" href="'.$_SERVER["PHP_SELF"].'?action='.$action.'&sortField='.$f.'&sortDir=ASC&filterSurname='.$filterSurname.'&filterGroup='.$filterGroup.'" class="sort-arrow">&uarr;</a>
+					<a title="По убыванию" href="'.$_SERVER["PHP_SELF"].'?action='.$action.'&sortField='.$f.'&sortDir=DESC&filterSurname='.$filterSurname.'&filterGroup='.$filterGroup.'" class="sort-arrow">&darr;</a></th>
+				';
 			}
 			echo '</tr>';
 
-			if ( count ($users) == 0 ) echo '<tr><td colspan="'.count ($field).'">Ничего не найдено</td></tr>';
+			if (count($users) == 0)
+				echo '<tr><td colspan="'.count($field).'">Ничего не найдено</td></tr>';
+
 			foreach ($users as $key=>$user) {
-				echo '<tr style="cursor:pointer" id="'.$user['id'].'" onmouseover="highlight(\''.$user['id'].'\')" onmouseout="nohighlight(\''.$user['id'].'\')">';
-				if ( RequestModule == 'accountlist' ) echo '
+				echo '<tr style="cursor:pointer" id="'.$user['id'].'"
+				          onmouseover="highlight(\''.$user['id'].'\')"
+				          onmouseout="nohighlight(\''.$user['id'].'\')">';
+
+				if (RequestModule == 'accountlist')
+					echo '
 					<td align="center"><a href="javascript:parent.account(\''.$user['id'].'\')"><</a></td>
-				';
+				    ';
 
 				foreach ($field as $f=>$text) {
-					if ( $f=='litgroup' || $f=='balance' ) $align='right'; elseif ( $f=='id' ) $align='center'; else $align='left';
+					if ($f == 'litgroup' || $f == 'balance')
+						$align = 'right';
+					elseif ($f == 'id')
+						$align = 'center';
+					else
+						$align = 'left';
 
-					if ($f == 'litgroup' && $user[$f] == 'Преподаватель') echo '<td align="'.$align.'">П</td>';
-					 elseif ($f == 'litgroup' && $user[$f] == 'Выпускник') echo '<td align="'.$align.'">В</td>';
-					  else {
+					if ($f == 'litgroup' && $user[$f] == 'Преподаватель') {
+						echo '<td align="'.$align.'">П</td>';
+					} elseif ($f == 'litgroup' && $user[$f] == 'Выпускник') {
+						echo '<td align="'.$align.'">В</td>';
+					} else {
 						echo '<td align="'.$align.'" onclick="viewInfo(\''.$user['id'].'\')">';
 						echo $user[$f];
-						echo '</td>'."\n";
+						echo '</td>';
 					}
+					echo "\n";
 				}
 				echo '</tr>';
 			}
