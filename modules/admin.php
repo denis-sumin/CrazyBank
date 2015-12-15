@@ -219,10 +219,12 @@ function show_admin ($action) {
 							echo '<option value="'.$key.'" '.$atr.'>'.$value.'</option>';
 						}
 						echo '</select></tr>';
+					} else {
+						echo '<input type="hidden" name="state" value="'.$editUser['state'].''" />'
 					}
 					echo '
 					<tr><td>&nbsp;</td>
-						<td> <input type="submit" name="'.$action.'" value="Изменить" /></td>
+						<td><input type="submit" name="'.$action.'" value="Изменить" /></td>
 					</tr>
 				</table></p>
 				</form>
