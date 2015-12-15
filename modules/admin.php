@@ -206,20 +206,21 @@ function show_admin ($action) {
 
 					echo '</select>
 						</td>
-					</tr>
-					<tr><td>Государство</td>
-						<td><select name="state" size="1" style="width: 200px;">
-					';
+					</tr>';
 
-					foreach (getStatesList() as $key=>$value) {
-						if ($key == $editUser['state']) $atr = 'selected';
-							else $atr = '';
-						echo '<option value="'.$key.'" '.$atr.'>'.$value.'</option>';
+					$states = getStatesList();
+					if (count($states) > 0) {
+						echo '<tr><td>Государство</td>
+							<td><select name="state" size="1" style="width: 200px;">';
+
+						foreach (getStatesList() as $key=>$value) {
+							if ($key == $editUser['state']) $atr = 'selected';
+								else $atr = '';
+							echo '<option value="'.$key.'" '.$atr.'>'.$value.'</option>';
+						}
+						echo '</select></tr>';
 					}
-
 					echo '
-						</select>
-					</tr>
 					<tr><td>&nbsp;</td>
 						<td> <input type="submit" name="'.$action.'" value="Изменить" /></td>
 					</tr>
