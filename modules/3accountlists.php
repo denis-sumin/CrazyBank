@@ -75,10 +75,9 @@ function show_accountlists ( $action ) {
 				echo '
 				<a href="'.$_SERVER["PHP_SELF"].'?action='.$action.'&sortField='.$sortField.'
 				&sortDir='.$sortDir.'&filterSurname='.$alphabet[$i].'&filterGroup='.$filterGroup.'">'.$alphabet[$i].'</a> ';
-				echo '
-			</p><p>
-			Группа:<br />';
 			}
+			echo '</p>
+			<p>Группа:<br />';
 
 			for ($i = 0; $i<count($group); $i++) {
 				echo '
