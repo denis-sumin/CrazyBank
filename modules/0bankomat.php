@@ -192,24 +192,32 @@ function show_bankomat( $action ) {
 			break;
 
 		case 'account_history':
-
-			//echo '<h2>'.$states[$account['state']].'</h2>';
-
-			if( !@$account['account_id'] )
-			{
-				echo 'Невозможно получить информацию о счёте.';
-				break;
+			if ( isset ($_POST[$module['action'][0]]) )	{
+				if ( check_password($_POST['account_id'],$_POST['pin']) ) {
+					$account = get_account_info ($_POST['account_id']);
+				}
 			}
+			if ( isset ($account['id']) ) {
+				$income = getMoneyLog( '', $account['account_id'] );
+				$outgoing = getMoneyLog( $account['account_id'], '' );
 
-			$income = getMoneyLog( '', $account['account_id'] );
-			$outgoing = getMoneyLog( $account['account_id'], '' );
-
-			echo '<h3>Расходы</h3>';
-			print_account_log ( $outgoing['logs'] );
-			echo '<p>Сумма: '.$outgoing['sum'].'</p>';
-			echo '<h3>Доходы</h3>';
-			print_account_log ( $income['logs'] );
-			echo '<p>Сумма: '.$income['sum'].'</p>';
+				echo '<h3>Расходы</h3>';
+				print_account_log ( $outgoing['logs'] );
+				echo '<p>Сумма: '.$outgoing['sum'].'</p>';
+				echo '<h3>Доходы</h3>';
+				print_account_log ( $income['logs'] );
+				echo '<p>Сумма: '.$income['sum'].'</p>';
+			} else {
+				echo '
+				<form method="POST" action="'.$_SERVER["PHP_SELF"].'?action='.$action.'">
+				<table class="form">
+					<tr><td>Номер счета:</td><td><input type="text" name="account_id" size="20" maxlength="4" /></td></tr>
+					<tr><td>PIN-код:</td><td><input type="password" name="pin" size="20" maxlength="6" /></td></tr>
+					<tr><td></td><td><input type="submit" name="'.$module['action'][0].'" value="Проверить баланс" /></td></tr>
+				</table>
+				</form>
+				';
+			}
 			break;
 
 		default:
