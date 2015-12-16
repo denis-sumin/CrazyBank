@@ -55,12 +55,12 @@ function execute_transfer( $account_id_from, $account_id_to, $n, $currency, $com
 	if( accounttype( $account_id_to ) == 'user' )
 	{
 		$commission = $n * $transfersToUsersCommission;
-		if (balance($account_id_from) >= ($n + $commission)) {
+		if (balance($account_id_from) >= $n) {
 			$res =
-				transmit( $account_id_from, $account_id_to, $n, $currency, $comment, false ) &&
+				transmit( $account_id_from, $account_id_to, ($n-$commission), $currency, $comment, false ) &&
 				transmit( $account_id_from, 0, $commission, $currency, 'Комиссия за перевод '.$comment, false );
 		} else {
-			report_error('Недостаточно средств. Для перевода требуется '.$n + $commission.' ');
+			report_error('Недостаточно средств.');
 		}
 	}
 	else
