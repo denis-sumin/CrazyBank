@@ -360,6 +360,7 @@ function show_admin ($action) {
 			<form method="post">
 				<p><!--<input type="checkbox" name="reload_rates" />&nbsp; Обновить курсы валют<br />-->
 				<input type="checkbox" name="increase_balances" />&nbsp; Увеличить баланс активных счетов на 5 %<br />
+				<input type="checkbox" name="increase_all_user_balances" />&nbsp; Увеличить баланс всех счетов пользователей на 7 %<br />
 				<input type="checkbox" name="increase_state_balances" />&nbsp; Увеличить баланс государств<br />
 				<input type="checkbox" name="collect_taxes" />&nbsp; Собрать налоги<br />
 				<input type="checkbox" name="distribute_state_balances" />&nbsp; Распределить бюджеты государств по гражданам</p>
@@ -373,6 +374,9 @@ function show_admin ($action) {
 				}
 				if (isset($_POST['increase_balances'])) {
 					if (increase_balances()) echo '<p>Увеличили баланс активных счетов на 5&nbsp;%</p>';
+				}
+				if (isset($_POST['increase_all_user_balances'])) {
+					if (increase_all_user_balances()) echo '<p>Увеличили баланс всех счетов пользователей на 7&nbsp;%</p>';
 				}
 				if (isset($_POST['increase_state_balances'])) {
 					if (increase_state_balances()) echo '<p>Увеличили балансы государств</p>';

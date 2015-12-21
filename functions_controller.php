@@ -1312,6 +1312,28 @@ function increase_balances() {
 	return TRUE;
 }
 
+function increase_all_user_balances() {
+	mysql_query ("START TRANSACTION;");
+	$q = mysql_query ("SELECT * FROM `accounts` WHERE `id` > 0 AND `id`< 1000 AND `blocked` != '1' AND `balance` > 0;");
+
+	for ($i=0; $i<mysql_num_rows($q); $i++) {
+		$f = mysql_fetch_array($q);
+
+		if (!mysql_query("UPDATE `accounts` SET `balance`=`balance`+`balance`*0.07 WHERE `id` = '".$f['id']."' LIMIT 1;")) {
+			report_error ("Не удалось изменить счета участников игры");
+		}
+		if (!mysql_query("
+		INSERT INTO `logs_money` (`id_from`, `id_to`,`ip`,`money`,`currency`,`comment`)
+		VALUES ('0', '".$f['id']."','bank','".($f['balance']*0.07)."','".$f['currency']."','Премия за активность')
+		")) {
+			report_error ("Произошла ошибка записи в логи. Операция прервана");
+		}
+	}
+
+	mysql_query ("COMMIT;");
+	return TRUE;
+}
+
 function increase_state_balances() {
 	$state_accounts = getStatesAccounts();
 	foreach ( $state_accounts as $key=>$value ) $state_increase[$key] = 0;
